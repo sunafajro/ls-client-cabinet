@@ -190,4 +190,24 @@ class Student extends \yii\db\ActiveRecord
         
         return $lessons;
     }
+
+    public function getAttestations()
+    {
+        $grades = (new \yii\db\Query())
+        ->select([
+            'date' => 'sg.date',
+            'score' => 'sg.score',
+            'type' => 'sg.type',
+            'description' => 'sg.description',
+        ])
+        ->from(['sg' => 'student_grades'])
+        ->where([
+            'sg.visible' => 1,
+            'sg.calc_studname' => $this->id,
+        ])
+        ->orderBy(['sg.date' => SORT_DESC])
+        ->all();
+        
+        return $grades;
+    }
 }

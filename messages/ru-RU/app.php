@@ -24,6 +24,7 @@ return [
     'Payments' => 'Оплаты',
     'Please fill out the following fields to login' => 'Пожалуйста введите ваш логин и пароль, для входа в кабинет',
     'Profile' => 'Профиль',
+    'Score' => 'Оценка',
     'Settings' => 'Настройки',
     'Sum' => 'Сумма',
     'Teacher' => 'Преподаватель',

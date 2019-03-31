@@ -55,4 +55,13 @@ class StudentController extends Controller {
             'totalPages' => ceil($total->totalCount / $limit)
         ]);
     }
+
+    public function actionAttestations()
+    {
+        $student = Student::findOne(Yii::$app->user->id);
+        $attestations = $student ? $student->getAttestations() : [];
+        return $this->render('attestations', [
+            'grades' => $attestations
+        ]);  
+    }
 }
