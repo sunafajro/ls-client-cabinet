@@ -34,6 +34,21 @@ class StudentController extends Controller {
             ],
         ];
     }
+    
+    public function actionProfile()
+    {
+        $student = Student::findOne(Yii::$app->user->id);
+        $lessons = $student ? $student->getPassedLessonsByService() : [];
+		$serviceIds = [];
+		foreach ($lessons as $lesson) {
+			$serviceIds[] = $lesson['serviceid'];
+		}
+        $services = $student ? $student->getOrderedLessonsByService($serviceIds) : [];
+        return $this->render('profile', [
+            'lessons' => $lessons,
+            'services' => $services
+        ]);
+    }
 
     public function actionPayments()
     {
@@ -65,6 +80,13 @@ class StudentController extends Controller {
         return $this->render('attestations', [
             'grades' => $attestations
         ]);  
+    }
+
+    public function actionMessages()
+    {
+        return $this->render('messages', [
+            
+        ]);
     }
 
     public function actionSettings()

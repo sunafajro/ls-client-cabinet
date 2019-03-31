@@ -224,4 +224,81 @@ class Student extends \yii\db\ActiveRecord
         
         return $grades;
     }
+
+    public function getPassedLessonsByService()
+    {
+        $lessons = (new \yii\db\Query())
+		->select([
+            'lessonattend' => 'count(sjg.id)',
+            'serviceid' => 'gt.calc_service',
+        ])
+		->from(['sjg' => 'calc_studjournalgroup'])
+		->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
+		->innerJoin(['gt' => 'calc_groupteacher'], 'gt.id = jg.calc_groupteacher and gt.id = sjg.calc_groupteacher')
+		->where([
+            'sjg.calc_studname' => $this->id,
+            'jg.visible' => 1,
+            'sjg.calc_statusjournal' => [1, 3],
+            'jg.view' => 1,
+        ])
+        ->groupBy(['serviceid'])
+        ->all();
+        
+        return $lessons;
+    }
+
+    public function getOrderedLessonsByService($ids = [])
+    {
+        $languages = [];
+        $mdLanguages = (new \yii\db\Query())
+        ->select(['id' => 'id', 'name' => 'name'])
+        ->from(['l' => 'calc_lang'])
+        ->where([
+            'visible' => 1
+        ])
+        ->all();
+
+        foreach($mdLanguages as $language) {
+            $languages[$language['id']] = $language['name'];
+        }
+
+        $eduforms = [];
+        $mdEduforms = (new \yii\db\Query())
+        ->select(['id' => 'id', 'name' => 'name'])
+        ->from(['l' => 'calc_eduform'])
+        ->where([
+            'visible' => 1
+        ])
+        ->all();
+
+        foreach($mdEduforms as $eduform) {
+            $eduforms[$eduform['id']] = $eduform['name'];
+        }
+
+        $services = (new \yii\db\Query())
+		->select([
+            'lessonpaied' => 'sum(i.num)',
+            'serviceid' => 's.id',
+            'servicename' => 's.name',
+            'languageId' => 's.calc_lang',
+            'eduformId' => 's.calc_eduform'
+        ])
+		->from([ 'i' => 'calc_invoicestud'])
+		->innerJoin(['s' => 'calc_service'], 's.id = i.calc_service')
+		->where([
+            'i.calc_studname' => $this->id,
+            'i.visible' => 1,
+        ])
+		->andFilterWhere(['in', 'i.calc_service', $ids])
+		->groupBy(['serviceid', 'servicename', 'languageId', 'eduformId'])
+		->orderBy(['s.data' => SORT_DESC])
+        ->all();
+
+        foreach($services as &$service) {
+            $service['languageName'] = $languages[$service['languageId']] ?? '';
+            $service['eduformName'] = $eduforms[$service['eduformId']] ?? '';
+        }
+        
+        return $services;
+    }
 }
