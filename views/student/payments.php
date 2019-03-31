@@ -14,7 +14,7 @@ $this->title = Yii::$app->params['siteTitle'];
         <div class="panel-heading">
             <b><?= Yii::t('app', 'Payments') ?></b>
         </div>
-        <table class="table table-stripped table-hover table-condensed">
+        <table class="table table-bordered table-hover table-stripped table-condensed">
             <thead>
                 <tr>
                     <th>№</th>
