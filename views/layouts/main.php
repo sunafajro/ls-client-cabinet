@@ -29,7 +29,7 @@ AppAsset::register($this);
 <div class="wrap">
     <?php if (!Yii::$app->user->isGuest) {
         NavBar::begin([
-            'brandLabel' => Yii::$app->params['siteName'],
+            'brandLabel' => Yii::$app->params['siteName'] . ' <small>β</small>',
             'brandUrl' => Yii::$app->homeUrl,
             'options' => [
                 'class' => 'navbar-inverse navbar-fixed-top',
@@ -40,14 +40,18 @@ AppAsset::register($this);
             'items' => [
                 ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index']],
                 ['label' => Yii::t('app', 'Profile'), 'url' => ['/student/profile']],
+                ['label' => Yii::t('app', 'Payments'), 'url' => ['/student/payments']],
                 ['label' => Yii::t('app', 'Lessons'), 'url' => ['/student/lessons']],
+                ['label' => Yii::t('app', 'Attestations'), 'url' => ['/student/attestations']],
+                ['label' => Yii::t('app', 'Messages'), 'url' => ['/student/messages']],
+                ['label' => Yii::t('app', 'Settings'), 'url' => ['/student/settings']],
                 Yii::$app->user->isGuest ? (
                     ['label' => 'Login', 'url' => ['/site/login']]
                 ) : (
                     '<li>'
                     . Html::beginForm(['/site/logout'], 'post')
                     . Html::submitButton(
-                        'Logout (' . Yii::$app->user->identity->username . ')',
+                        Yii::t('app', 'Logout'),
                         ['class' => 'btn btn-link logout']
                     )
                     . Html::endForm()
