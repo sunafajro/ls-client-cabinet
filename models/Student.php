@@ -33,6 +33,7 @@ class Student extends \yii\db\ActiveRecord
     {
         return 'calc_studname';
     }
+
     /**
      * @inheritdoc
      */
@@ -45,6 +46,7 @@ class Student extends \yii\db\ActiveRecord
             [['debt', 'debt2', 'invoice', 'money'], 'number']
         ];
     }
+    
     /**
      * @inheritdoc
      */
@@ -106,5 +108,21 @@ class Student extends \yii\db\ActiveRecord
             'isActive' => $student['active'],
             'lastLoginDate' => $student['date']
         ] : null;
+    }
+
+    public function getLessonsComments()
+    {
+        $comments = (new \yii\db\Query())
+		->select(['date' => 'jg.data', 'comments' => 'sjg.comments'])
+		->from(['sjg' => 'calc_studjournalgroup'])
+		->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
+		->where([
+            'sjg.calc_studname' => $this->id,
+            'jg.visible' => 1
+        ])
+		->orderBy(['jg.data' => SORT_DESC])
+		->limit(5)
+        ->all();
+        return $comments;
     }
 }
