@@ -57,10 +57,12 @@ class LoginForm extends Model
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError($attribute, 'Incorrect username or password.');
             }
-            // ограничение на вход при неактивности более 2 месяцев
-            $loginLimitDate = date('Y-m-d', strtotime('-2 month'));
-            if ($user->lastLoginDate < $loginLimitDate || (int)$user->active === 0) {
-                $this->addError('date', Yii::t('app', 'Access for your account was restricted. Please contact your office manager.'));
+            if (!$this->hasErrors()) {
+                // ограничение на вход при неактивности более 2 месяцев
+                $loginLimitDate = date('Y-m-d', strtotime('-2 month'));
+                if ($user->lastLoginDate < $loginLimitDate || (int)$user->isActive === 0) {
+                    $this->addError('date', Yii::t('app', 'Access for your account was restricted. Please contact your office manager.'));
+                }
             }
         }
     }

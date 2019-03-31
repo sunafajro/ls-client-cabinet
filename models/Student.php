@@ -103,6 +103,7 @@ class Student extends \yii\db\ActiveRecord
             'password' => $student['password'],
             'authKey' => '',
             'accessToken' => '',
+            'isActive' => $student['active'],
             'lastLoginDate' => $student['date']
         ] : null;
     }
