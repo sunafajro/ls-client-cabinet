@@ -80,7 +80,7 @@ class SiteController extends Controller
         $message = new Message();
         $student = Student::findOne(Yii::$app->user->id);
         $messages = $message->getNews(Yii::$app->user->id);
-        $comments = $student ? $student->getLessonsComments() : [];
+        list($comments, $total) = $student ? $student->getLessonsComments(5, 0) : [[], []];
         return $this->render('index', [
             'messages' => $messages,
             'comments' => $comments,

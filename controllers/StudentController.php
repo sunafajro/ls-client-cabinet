@@ -41,4 +41,18 @@ class StudentController extends Controller {
             'payments' => $payments
         ]);
     }
+
+    public function actionLessons($page = 1)
+    {
+        $limit = 10;
+        $student = Student::findOne(Yii::$app->user->id);
+        $lessons = $student->getLessons();
+        list($comments, $total) = $student ? $student->getLessonsComments($limit, ($page - 1) * $limit) : [[], []];
+        return $this->render('lessons', [
+            'lessons' => $lessons,
+            'comments' => $comments,
+            'currentPage' => $page,
+            'totalPages' => ceil($total->totalCount / $limit)
+        ]);
+    }
 }

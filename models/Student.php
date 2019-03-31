@@ -1,6 +1,10 @@
 <?php
 namespace app\models;
+
 use Yii;
+
+use yii\data\Pagination;
+
 /**
  * This is the model class for table "calc_studname".
  *
@@ -112,20 +116,33 @@ class Student extends \yii\db\ActiveRecord
         ] : null;
     }
 
-    public function getLessonsComments()
+    public function getLessonsComments($limit = 10, $offset = 0)
     {
         $comments = (new \yii\db\Query())
-		->select(['date' => 'jg.data', 'comments' => 'sjg.comments'])
+		->select([
+            'id' => 'jg.id',
+            'date' => 'jg.data',
+            'comments' => 'sjg.comments'
+        ])
 		->from(['sjg' => 'calc_studjournalgroup'])
 		->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
 		->where([
             'sjg.calc_studname' => $this->id,
             'jg.visible' => 1
         ])
-		->orderBy(['jg.data' => SORT_DESC])
-		->limit(5)
+        ->andWhere(['!=', 'sjg.comments', '']);
+
+        $countQuery = clone $comments;
+        $pages = new Pagination(['totalCount' => $countQuery->count()]);
+
+		$comments = $comments->orderBy(['jg.data' => SORT_DESC])
+        ->limit($limit)
+        ->offset($offset)
         ->all();
-        return $comments;
+        return [
+            $comments,
+            $pages,
+        ];
     }
 
     public function getPayments()
@@ -148,5 +165,29 @@ class Student extends \yii\db\ActiveRecord
         ->all();
         
         return $payments;
+    }
+
+    public function getLessons()
+    {
+        $lessons = (new \yii\db\Query())
+		->select('cjg.data as lessondate, csjg.comments as comm, cs.name as coursename, cel.name as level, ctch.name as teacher, co.name as office, csj.name as studstatus, ctn.name as lessontime, csj.id as studstatusid, cs.id as courseid, cjg.id as lessonid, cjg.description as description, cjg.homework as homework') 
+		->from('calc_studjournalgroup csjg') 
+		->leftjoin('calc_groupteacher cgt', 'cgt.id = csjg.calc_groupteacher')
+		->leftjoin('calc_teacher ctch', 'ctch.id=cgt.calc_teacher')
+		->leftjoin('calc_edulevel cel', 'cel.id = cgt.calc_edulevel')
+		->leftjoin('calc_service cs', 'cs.id = cgt.calc_service')
+		->leftjoin('calc_office co', 'co.id = cgt.calc_office ')
+		->leftjoin('calc_statusjournal csj', 'csj.id = csjg.calc_statusjournal')
+		->leftjoin('calc_journalgroup cjg', 'cjg.id = csjg.calc_journalgroup')
+		->leftjoin('calc_timenorm ctn', 'ctn.id = cs.calc_timenorm')
+		->where([
+            'csjg.calc_studname' => $this->id,
+            'cjg.visible' => 1
+        ])
+        ->andWhere(['!=', 'csjg.user', '0'])
+		->orderBy(['cjg.data' => SORT_DESC])
+        ->all();
+        
+        return $lessons;
     }
 }
