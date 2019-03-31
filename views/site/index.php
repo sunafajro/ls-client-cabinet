@@ -57,20 +57,18 @@ $this->title = Yii::$app->params['siteTitle'];
         <div class="col-xs-12 col-sm-3">
             <div class="panel panel-info">
                 <div class="panel-heading">
-                    <b>Последние комментарии</b>
+                    <b><?= Yii::t('app', 'Last comments') ?></b>
                 </div>
                 <div class="panel-body" style="font-size: 12px">
                     <?php if (empty($comments)) { ?>
-                        <p class="text-danger">У Вас пока нет комментариев к занятиям.</p>
+                        <p class="text-danger"><?= Yii::t('app', 'You have no comments to the classes.') ?></p>
                     <?php } else { ?>
                         <?php foreach ($comments as $comment) { ?>
-                            <?php if ($comment['comments'] !== "") { ?>
                             <p>
-                                <strong>Занятие <?= date('d.m.Y', strtotime($comment['date'])) ?></strong><br/>
-                                <em><?= $comment['comments'] ?></em>
+                                <b><?= Yii::t('app', 'Lesson') ?> <?= date('d.m.Y', strtotime($comment['date'])) ?></b><br/>
+                                <i><?= $comment['comments'] ?></i>
                             </p>
                             <?php } ?>
-                        <?php } ?>
                         <div class="text-right">
                             <?= Html::a('Далее...', ['student/lessons']) ?>
                         </div>
@@ -79,7 +77,7 @@ $this->title = Yii::$app->params['siteTitle'];
 	        </div>
             <div class="panel panel-warning">
                 <div class="panel-heading">
-                    <b>Наши контакты</b>
+                    <b><?= Yii::t('app', 'Our contacts') ?></b>
                 </div>
                 <div class="panel-body" style="font-size: 12px">
                     <p>

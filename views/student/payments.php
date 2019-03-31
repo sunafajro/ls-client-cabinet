@@ -12,7 +12,7 @@ $this->title = Yii::$app->params['siteTitle'];
 <div class="content-block">
     <div class="panel panel-info">
         <div class="panel-heading">
-            <b>Оплаты</b>
+            <b><?= Yii::t('app', 'Payments') ?></b>
         </div>
         <table class="table table-stripped table-hover table-condensed">
             <thead>
@@ -51,7 +51,7 @@ $this->title = Yii::$app->params['siteTitle'];
                     <?php } ?>
                     <tr>
                         <td class="text-right" colspan="5">
-                            <b>Общая сумма оплат: <?= number_format($sum, 2, '.', ' ') ?></b>
+                            <b><?= Yii::t('app', 'Total payments sum') ?>: <?= number_format($sum, 2, '.', ' ') ?></b>
                         </td>
                     </tr>
                 </tbody>
