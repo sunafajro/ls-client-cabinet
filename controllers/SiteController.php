@@ -3,11 +3,13 @@
 namespace app\controllers;
 
 use Yii;
+use app\models\LoginForm;
+use app\models\Message;
+use app\models\Student;
 use yii\filters\AccessControl;
+use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
 
 class SiteController extends Controller
 {
@@ -75,7 +77,14 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        $message = new Message();
+        $student = Student::findOne(Yii::$app->user->id);
+        $messages = $message->getNews(Yii::$app->user->id);
+        $comments = $student ? $student->getLessonsComments() : [];
+        return $this->render('index', [
+            'messages' => $messages,
+            'comments' => $comments,
+        ]);
     }
 
     /**
