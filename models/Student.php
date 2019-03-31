@@ -127,4 +127,26 @@ class Student extends \yii\db\ActiveRecord
         ->all();
         return $comments;
     }
+
+    public function getPayments()
+    {
+        $payments = (new \yii\db\Query())
+		->select([
+            'date' => 'ms.data',
+            'value' => 'ms.value',
+            'office' => 'o.name',
+            'employee' => 'u.name'
+        ])
+		->from(['ms' => 'calc_moneystud'])
+		->innerJoin(['u' => 'user'], 'u.id = ms.user')
+		->innerJoin(['o' => 'calc_office'], 'o.id = ms.calc_office')
+		->where([
+            'ms.calc_studname' => $this->id,
+            'ms.visible' => 1
+        ])
+		->orderBy(['ms.data' => SORT_DESC])
+        ->all();
+        
+        return $payments;
+    }
 }
