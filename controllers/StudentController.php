@@ -3,6 +3,8 @@
 namespace app\controllers;
 
 use Yii;
+use app\models\ChangeUsernameForm;
+use app\models\ChangePasswordForm;
 use app\models\Student;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -63,5 +65,33 @@ class StudentController extends Controller {
         return $this->render('attestations', [
             'grades' => $attestations
         ]);  
+    }
+
+    public function actionSettings()
+    {
+        $changeUsername = new ChangeUsernameForm();
+        $changePassword = new ChangePasswordForm();
+        if (Yii::$app->request->isPost) {
+            if (Yii::$app->request->post('ChangeUsernameForm')) {
+                if ($changeUsername->load(Yii::$app->request->post()) && $changeUsername->save()) {
+                    $changeUsername = new ChangeUsernameForm();
+                    Yii::$app->session->setFlash('success', Yii::t('app', 'Login parameters successfully updated'));
+                } else {
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Failed to update login parameters'));
+                }
+            }
+            if (Yii::$app->request->post('ChangePasswordForm')) {
+                if ($changePassword->load(Yii::$app->request->post()) && $changePassword->save()) {
+                    $changePassword = new ChangePasswordForm();
+                    Yii::$app->session->setFlash('success', Yii::t('app', 'Login parameters successfully updated'));
+                } else {
+                    Yii::$app->session->setFlash('error', Yii::t('app', 'Failed to update login parameters'));
+                }
+            }
+        }
+        return $this->render('settings', [
+            'changeUsername' => $changeUsername,
+            'changePassword' => $changePassword
+        ]);
     }
 }
