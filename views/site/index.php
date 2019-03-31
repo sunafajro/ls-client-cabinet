@@ -11,7 +11,7 @@ use yii\helpers\Html;
 
 $this->title = Yii::$app->params['siteTitle'];
 ?>
-<div class="site-index" style="margin: 70px 0 0 0">
+<div class="content-block">
     <div class="row">
         <div class="col-xs-12 col-sm-9">
         <?php if (!empty($messages)) { ?>
