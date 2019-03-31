@@ -170,22 +170,36 @@ class Student extends \yii\db\ActiveRecord
     public function getLessons()
     {
         $lessons = (new \yii\db\Query())
-		->select('cjg.data as lessondate, csjg.comments as comm, cs.name as coursename, cel.name as level, ctch.name as teacher, co.name as office, csj.name as studstatus, ctn.name as lessontime, csj.id as studstatusid, cs.id as courseid, cjg.id as lessonid, cjg.description as description, cjg.homework as homework') 
-		->from('calc_studjournalgroup csjg') 
-		->leftjoin('calc_groupteacher cgt', 'cgt.id = csjg.calc_groupteacher')
-		->leftjoin('calc_teacher ctch', 'ctch.id=cgt.calc_teacher')
-		->leftjoin('calc_edulevel cel', 'cel.id = cgt.calc_edulevel')
-		->leftjoin('calc_service cs', 'cs.id = cgt.calc_service')
-		->leftjoin('calc_office co', 'co.id = cgt.calc_office ')
-		->leftjoin('calc_statusjournal csj', 'csj.id = csjg.calc_statusjournal')
-		->leftjoin('calc_journalgroup cjg', 'cjg.id = csjg.calc_journalgroup')
-		->leftjoin('calc_timenorm ctn', 'ctn.id = cs.calc_timenorm')
+		->select([
+            'lessondate' => 'jg.data',
+            'comm' => 'sjg.comments',
+            'coursename' => 's.name',
+            'level' => 'el.name',
+            'teacher' => 't.name',
+            'office' => 'o.name',
+            'studstatus' => 'sj.name',
+            'lessontime' => 'tn.name',
+            'studstatusid' => 'sj.id',
+            'courseid' => 's.id',
+            'lessonid' => 'jg.id',
+            'description' => 'jg.description', 
+            'homework' => 'jg.homework'
+        ]) 
+		->from(['sjg' => 'calc_studjournalgroup']) 
+		->leftjoin(['gt' => 'calc_groupteacher'], 'gt.id = sjg.calc_groupteacher')
+		->leftjoin(['t' => 'calc_teacher'], 't.id=gt.calc_teacher')
+		->leftjoin(['el' => 'calc_edulevel'], 'el.id = gt.calc_edulevel')
+		->leftjoin(['s' => 'calc_service'], 's.id = gt.calc_service')
+		->leftjoin(['o' => 'calc_office'], 'o.id = gt.calc_office ')
+		->leftjoin(['sj' => 'calc_statusjournal'], 'sj.id = sjg.calc_statusjournal')
+		->leftjoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
+		->leftjoin(['tn' => 'calc_timenorm'], 'tn.id = s.calc_timenorm')
 		->where([
-            'csjg.calc_studname' => $this->id,
-            'cjg.visible' => 1
+            'sjg.calc_studname' => $this->id,
+            'jg.visible' => 1
         ])
-        ->andWhere(['!=', 'csjg.user', '0'])
-		->orderBy(['cjg.data' => SORT_DESC])
+        ->andWhere(['!=', 'sjg.user', 0])
+		->orderBy(['jg.data' => SORT_DESC])
         ->all();
         
         return $lessons;
