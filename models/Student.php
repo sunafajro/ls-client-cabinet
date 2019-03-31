@@ -85,6 +85,7 @@ class Student extends \yii\db\ActiveRecord
         ->select([
             'id' => 's.id',
             'active' => 's.active',
+            'name' => 's.name',
             'username' => 'c.username',
             'password' => 'c.password',
             'date' => 'c.date',
@@ -101,6 +102,7 @@ class Student extends \yii\db\ActiveRecord
 
         return $student ? [
             'id' => $student['id'],
+            'name' => $student['name'],
             'username' => $student['username'],
             'password' => $student['password'],
             'authKey' => '',
