@@ -36,27 +36,25 @@ $this->title = Yii::$app->params['siteTitle'];
                                     <b><?= Yii::t('app', 'Level') ?>:</b> <?= $course['level'] ?><br />
                                     <b><?= Yii::t('app', 'Teacher') ?>:</b> <?= $course['teacher'] ?><br />
                                     <b><?= Yii::t('app', 'Duration') ?>:</b> <?= $course['lessontime'] ?><br />
-                                    <b><?= Yii::t('app', 'Office') ?>:</b> <?= $course['office'] ?></div>
+                                    <b><?= Yii::t('app', 'Office') ?>:</b> <?= $course['office'] ?>
+                                </div>
+                                <div class="col-sm-8">
                                     <?php $num = 1; ?>
-                                    <div class="col-sm-8">
-                                        <?php foreach ($lessons as $attend) { ?>
-                                            <?php if ($course['courseid'] == $attend['courseid']) { ?>
-                                                <?= $this->render('lessonModal', [
-                                                    'attend' => $attend
-                                                ]) ?>
-                                                <?php $num += 1; ?>
-                                            <?php } ?>
+                                    <?php foreach ($lessons as $attend) { ?>
+                                        <?php if ($course['courseid'] == $attend['courseid']) { ?>
+                                            <?= $this->render('lessonModal', [
+                                                'attend' => $attend
+                                            ]) ?>
+                                            <?php $num += 1; ?>
                                         <?php } ?>
-                                    </div>
+                                    <?php } ?>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12 text-right">
-                                <b>
-                                    <?= Yii::t('app', 'Lesson count') ?>: <?= $num - 1 ?>
-                                </b>
-                            </div>
+                        <div class="text-right">
+                            <b>
+                                <?= Yii::t('app', 'Lesson count') ?>: <?= $num - 1 ?>
+                            </b>
                         </div>
                     </div>
                 <?php } ?>
@@ -76,11 +74,11 @@ $this->title = Yii::$app->params['siteTitle'];
                         <p>
                             <b>
                                 <?= Html::a(
-                                    Yii::t('app', 'Lesson') . date('d.m.Y', strtotime($comment['date'])),
+                                    Yii::t('app', 'Lesson') . ' ' . date('d.m.Y', strtotime($comment['date'])),
                                     '#',
                                     [
                                         'data-toggle' => 'modal',
-                                        'data-target' => '.hometask-' . $attend['lessonid'],
+                                        'data-target' => '.hometask-' . $comment['id'],
                                     ])
                                 ?>
                             </b><br/>
