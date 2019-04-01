@@ -302,6 +302,42 @@ class Student extends \yii\db\ActiveRecord
         return $services;
     }
 
+    public function getSchedule()
+    {
+		$schedule = (new \yii\db\Query())
+		->select([
+            'coursename' => 'l.name',
+            'denname' => 'd.name',
+            'starttime' => 'sc.time_begin',
+            'endtime' => 'sc.time_end',
+            'office' => 'o.name',
+            'cabinet' => 'c.name',
+            'teachername' => 't.name'
+        ])
+		->from(['s' => 'calc_service'])
+		->innerJoin(['gt' => 'calc_groupteacher'], 's.id = gt.calc_service')
+		->innerJoin(['t' => 'calc_teacher'], 't.id = gt.calc_teacher')
+		->innerJoin(['sc' => 'calc_schedule'], 'sc.calc_teacher = t.id AND sc.calc_groupteacher = gt.id')
+		->innerJoin(['d' => 'calc_denned'], 'd.id = sc.calc_denned')
+		->innerJoin(['o' => 'calc_office'], 'o.id = sc.calc_office')
+		->innerJoin(['c' => 'calc_cabinetoffice'], 'sc.calc_cabinetoffice = c.id')
+		->innerJoin(['sg' => 'calc_studgroup'], 'gt.id = sg.calc_groupteacher')
+		->innerJoin(['sn'=> 'calc_studname'], 'sn.id = sg.calc_studname')
+		->innerJoin(['l' => 'calc_lang'], 'l.id = s.calc_lang')
+		->where([
+            'sn.id' => $this->id,
+            'gt.visible' => 1,
+            'sg.visible' => 1
+        ])
+		->orderBy([
+            'd.id' => SORT_ASC,
+            'sc.time_begin' => SORT_ASC
+        ])
+        ->all();
+        
+        return $schedule;
+    }
+
     public function calculateBalance($dolg2 = 0, $services = [], $lessons = [])
     {
         $dolg1 = 0;

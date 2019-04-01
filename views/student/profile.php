@@ -4,6 +4,7 @@
  * @var $this yii\web\View
  * @var $balance
  * @var $lessons
+ * @var $schedule
  * @var $services
  * @var $student
  */
@@ -20,7 +21,35 @@ $this->title = Yii::$app->params['siteTitle'];
                 'student' => $student,
                 'balance' => $balance
             ]) ?>
-	    </div>
+            <?php if (!empty($schedule)) { ?>
+	            <div class="panel panel-warning">
+	                <div class="panel-heading">
+                        <b><?= Yii::t('app', 'Schedule') ?></b>
+                    </div>
+	                <div class="panel-body">
+	                <?php $days = []; ?>
+	                <?php $z = 0; ?>
+	                <?php foreach ($schedule as $den) { ?>
+		                <?php if ($den['denname'] !== '') { ?>
+			                <?php if (!in_array($den['denname'], $days)) { ?>
+			                    <?php $days[$z] = $den['denname']; ?>
+			                    <div>
+                                    <b><?= $den['denname'] ?></b></div>
+			                    <div> 
+				                    <?php foreach ($schedule as $day) { ?>
+					                    <?php if ($day['denname'] !== '' && $den['denname'] === $day['denname']) { ?>
+						                    <?= substr($day['starttime'], 0, 5) . "-".substr($day['endtime'], 0, 5) . " :: " . $day['coursename'] . " :: " . $day['teachername'] . " :: " . $day['office'] . " :: " . $day['cabinet'] ?><br />
+					                    <?php } ?>
+                                    <?php } ?>
+					            </div>
+				 	            <?php $z += 1; ?>
+					        <?php } ?>
+                        <?php } ?>
+                    <?php } ?>
+	                </div>
+                </div>
+            <?php } ?>        
+        </div>
         <div class="col-xs-12 col-sm-3">
         
         </div>
