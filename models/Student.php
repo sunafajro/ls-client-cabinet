@@ -229,8 +229,8 @@ class Student extends \yii\db\ActiveRecord
     {
         $lessons = (new \yii\db\Query())
 		->select([
-            'lessonattend' => 'count(sjg.id)',
-            'serviceid' => 'gt.calc_service',
+            'lessonAttend' => 'count(sjg.id)',
+            'serviceId' => 'gt.calc_service',
         ])
 		->from(['sjg' => 'calc_studjournalgroup'])
 		->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
@@ -277,9 +277,9 @@ class Student extends \yii\db\ActiveRecord
 
         $services = (new \yii\db\Query())
 		->select([
-            'lessonpaied' => 'sum(i.num)',
-            'serviceid' => 's.id',
-            'servicename' => 's.name',
+            'lessonPaied' => 'sum(i.num)',
+            'serviceId' => 's.id',
+            'serviceName' => 's.name',
             'languageId' => 's.calc_lang',
             'eduformId' => 's.calc_eduform'
         ])
@@ -300,5 +300,44 @@ class Student extends \yii\db\ActiveRecord
         }
         
         return $services;
+    }
+
+    public function calculateBalance($dolg2 = 0, $services = [], $lessons = [])
+    {
+        $dolg1 = 0;
+        $totalpayedlessons = 0;
+        $totalattendedlessons = 0;
+        foreach ($services as $lesspaied) {
+            $cost = (new \yii\db\Query())
+            ->select(['value' => '(i.value / i.num)'])
+            ->from(['i' => 'calc_invoicestud'])
+            ->where([
+                'i.calc_studname' => $this->id,
+                'i.visible' => 1,
+                'i.calc_service' => $lesspaied['serviceId']
+            ])
+            ->orderBy(['i.id' => SORT_DESC])
+            ->limit(1)
+            ->one();
+            foreach ($lessons as $lessinfo) {
+                $lesscount = 0;
+                $servdolg = 0;
+                $totalcost = 0;    
+                if ((int)$lesspaied['serviceId'] === (int)$lessinfo['serviceId']) {
+                    $totalpayedlessons += $lesspaied['lessonPaied'];
+                    $totalattendedlessons += $lessinfo['lessonAttend'];
+                    $lesscount = $lesspaied['lessonPaied'] - $lessinfo['lessonAttend'];
+                    if ($lesscount < 0) {
+                        // считаем и присваиваем стоимость урока
+                        $totalcost = $cost['value'];
+                        // считаем сумму за все уроки одной группы
+                        $servdolg = $lesscount * $totalcost;
+                    }
+                }
+                // считаем сумму по всем группам
+                $dolg1 = $dolg1 + $servdolg;
+            }
+        }
+        return $dolg1 + $dolg2;
     }
 }
