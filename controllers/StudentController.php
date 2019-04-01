@@ -41,12 +41,19 @@ class StudentController extends Controller {
         $lessons = $student ? $student->getPassedLessonsByService() : [];
 		$serviceIds = [];
 		foreach ($lessons as $lesson) {
-			$serviceIds[] = $lesson['serviceid'];
+			$serviceIds[] = $lesson['serviceId'];
 		}
         $services = $student ? $student->getOrderedLessonsByService($serviceIds) : [];
+        $balance = $student->calculateBalance(
+            $student->debt,
+            $services,
+            $lessons
+        );
         return $this->render('profile', [
+            'balance' => $balance,
             'lessons' => $lessons,
-            'services' => $services
+            'services' => $services,
+            'student' => $student,
         ]);
     }
 
