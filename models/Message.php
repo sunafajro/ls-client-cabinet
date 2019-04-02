@@ -35,7 +35,7 @@ class Message extends \yii\db\ActiveRecord {
     public function rules()
     {
         return [
-            [['name', 'user', 'calc_messwhomtype', 'refinement', 'refinement_id'], 'required'],
+            [['name', 'description', 'user', 'calc_messwhomtype', 'refinement_id'], 'required'],
             [['visible', 'longmess', 'user', 'send', 'calc_messwhomtype', 'refinement_id'], 'integer'],
             [['name', 'description', 'files', 'refinement'], 'string'],
             [['data'], 'safe']
@@ -51,48 +51,16 @@ class Message extends \yii\db\ActiveRecord {
             'id' => 'ID',
             'visible' => Yii::t('app', 'Visible'),
             'longmess' => Yii::t('app', 'Is long'),
-            'name' => Yii::t('app', 'Subject'),
-            'description' => Yii::t('app', 'Text'),
+            'name' => Yii::t('app', 'Message subject'),
+            'description' => Yii::t('app', 'Message text'),
             'files' => Yii::t('app', 'Files'),
             'user' => Yii::t('app','Sender id'),
             'data' => Yii::t('app', 'Date'),
             'send' => Yii::t('app', 'Is sended'),
             'calc_messwhomtype' => Yii::t('app','Receiver type'),
-            'refinement' => Yii::t('app','Receiver id'),
-            'refinement_id' => Yii::t('app','Receiver name'),
+            'refinement' => Yii::t('app','Receiver name'),
+            'refinement_id' => Yii::t('app','Receiver id'),
             
         ];
-    }
-
-    public function getNews()
-    {
-        $messages = (new \yii\db\Query())
-        ->select('')
-        ->from(['m' => static::tableName()])
-        ->where([
-            'm.calc_messwhomtype' => '12',
-            'm.send' => 1
-        ])
-        ->orderBy(['m.data' => SORT_DESC])
-        ->limit(5)
-        ->all();
-
-        return $messages;
-    }
-
-    public function getMessages()
-    {
-        $messages = (new \yii\db\Query())
-        ->select('')
-        ->from(['m' => static::tableName()])
-        ->where([
-            'm.calc_messwhomtype' => '12',
-            'm.send' => 1
-        ])
-        ->orderBy(['m.data' => SORT_DESC])
-        ->limit(5)
-        ->all();
-
-        return $messages;
     }
 }

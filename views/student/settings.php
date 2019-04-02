@@ -9,6 +9,7 @@
  */
 
 use Yii;
+use app\widgets\Alert;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
@@ -17,16 +18,7 @@ $this->title = Yii::$app->params['siteTitle'];
 <div class="content-block">
     <div class="row">
 	    <div class="col-xs-12 col-sm-8">
-            <?php if (Yii::$app->session->hasFlash('error')) { ?>
-                <div class="alert alert-danger" role="alert">
-                    <?= Yii::$app->session->getFlash('error') ?>
-                </div>
-            <?php } ?>
-            <?php if (Yii::$app->session->hasFlash('success')) { ?>
-                <div class="alert alert-success" role="alert">
-                    <?= Yii::$app->session->getFlash('success') ?>
-                </div>
-            <?php } ?>
+            <?= Alert::widget() ?>
             <h3><?= Yii::t('app', 'Change login parameters') ?></h3>
             <?php $formUsername = ActiveForm::begin([
                 'id' => 'change-username-form',

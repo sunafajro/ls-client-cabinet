@@ -8,51 +8,21 @@
 
 use Yii;
 use yii\helpers\Html;
+use yii\widgets\ListView;
 
 $this->title = Yii::$app->params['siteTitle'];
 ?>
 <div class="content-block">
     <div class="row">
         <div class="col-xs-12 col-sm-9">
-        <?php if (!empty($messages)) { ?>
-            <?php foreach ($messages as $message) { ?>
-                <div class="panel panel-success">
-                    <div class="panel-heading"><?= $message['data'] ?> :: <?= $message['name'] ?></div>
-                    <div class="panel-body">
-                        <?php if ($message['files']) { 
-                            $files = $message['files'];
-                            $addr = explode('|', $files);
-                            if (isset($addr[0]) && $addr[0] != "") {
-                                $addr = explode('|', $files);
-                                $ext = explode('.', $addr[0]);
-                                if ($ext[1] === 'jpg' || $ext[1] === 'png' || $ext[1] === 'bmp' || $ext[1] ==='gif' ) { ?>
-                                    <?= Html::img(
-                                        '@web/images/calc_message/' . $message['id'] . '/fls/' . $addr[0],
-                                        [
-                                            'class' => 'img-thumbnail',
-                                            'style' => 'margin-right: 10px; float: left'
-                                        ]) ?>
-                                    <p style="text-align: justify">
-                                        <?= $message['description'] ?>
-                                    </p>
-                                <?php } else { ?>
-                                    <p style="text-align: justify">
-                                        <?= $message['description'] ?>
-                                    </p>
-                                    <?= Html::a(
-                                        count($addr) > 1 ? $addr[1] : '<none>',
-                                        '@web/fls/calc_message/' . $message->id . '/fls/' . $addr[0]) ?>
-                                <?php } ?>
-                            <?php } ?>
-                        <?php } else { ?>
-                            <p style="text-align: justify">
-                                <?= $message['description'] ?>
-                            </p>
-                        <?php } ?>
-                    </div>
-                </div>
-            <?php } ?>
-        <?php } ?>
+            <?= ListView::widget([
+                'dataProvider' => $messages,
+                'itemView' => '_newsList',
+                'layout' => "{items}\n{pager}",
+                'pager' => [
+                    'maxButtonCount' => 5,
+                ],
+            ]) ?>
         </div>
         <div class="col-xs-12 col-sm-3">
             <div class="panel panel-info">

@@ -4,6 +4,7 @@ namespace app\models;
 use Yii;
 
 use yii\data\Pagination;
+use yii\data\ActiveDataProvider;
 
 /**
  * This is the model class for table "calc_studname".
@@ -114,6 +115,32 @@ class Student extends \yii\db\ActiveRecord
             'isActive' => $student['active'],
             'lastLoginDate' => $student['date']
         ] : null;
+    }
+
+    public function getNews()
+    {
+        $query = (new \yii\db\Query())
+        ->select([
+            'date' => 'm.data',
+            'files' => 'm.files',
+            'id' => 'm.id',
+            'text' => 'm.description',
+            'title' => 'm.name',
+        ])
+        ->from(['m' => 'calc_message'])
+        ->where([
+            'm.calc_messwhomtype' => '12',
+            'm.send' => 1,
+            'm.visible' => 1,
+        ])
+        ->orderBy(['m.data' => SORT_DESC]);
+
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 5,
+            ],
+        ]);
     }
 
     public function getLessonsComments($limit = 10, $offset = 0)
@@ -338,6 +365,39 @@ class Student extends \yii\db\ActiveRecord
         return $schedule;
     }
 
+    public function getMessages()
+    {
+        $query = (new \yii\db\Query())
+        ->select([
+            'date' => 'm.data',
+            'sender' => 'u1.name',
+            'receiver' => 'u2.name',
+            'text' => 'm.description',
+            'title' => 'm.name',
+            'type' => 'm.calc_messwhomtype',
+        ])
+        ->from(['m' => 'calc_message'])
+        ->leftjoin(['u1' => 'user'], 'u1.id = m.user')
+		->leftjoin(['u2' => 'user'], 'u2.id = m.refinement_id')
+        ->where([
+            'm.send' => 1,
+            'm.visible' => 1,
+        ])
+        ->andWhere([
+            'or',
+            ['m.calc_messwhomtype' => 100, 'user' => $this->id],
+            ['m.calc_messwhomtype' => 13, 'm.refinement_id' => $this->id],
+        ])
+        ->orderBy(['m.data' => SORT_DESC]);
+
+        return new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => [
+                'pageSize' => 5,
+            ],
+        ]);
+    }
+
     public function calculateBalance($dolg2 = 0, $services = [], $lessons = [])
     {
         $dolg1 = 0;
@@ -375,5 +435,64 @@ class Student extends \yii\db\ActiveRecord
             }
         }
         return $dolg1 + $dolg2;
+    }
+
+    public function availableMessageReceiversList()
+    {
+		//выбираем руководителей
+		$chiefs = (new \yii\db\Query())
+		->select(['uid' => 'u.id', 'title' => 'u.name'])
+		->from(['u' => 'user'])
+		->where([
+            'u.visible' => 1,
+            'u.status' => 3,
+            'u.id' => [7, 41],
+        ])
+		->orderBy(['u.id' => SORT_ASC])
+		->all();
+
+		//выбираем список преподавателей активных курсов
+		$teachers = (new \yii\db\Query())
+		->select('ctch.name as title, u.id as uid')
+		->from('calc_studname csn')
+		->leftjoin('calc_studgroup csg', 'csn.id=csg.calc_studname')
+		->leftjoin('calc_groupteacher cgt', 'cgt.id=csg.calc_groupteacher')
+		->leftjoin('calc_service csv', 'csv.id=cgt.calc_service')
+		->leftjoin('calc_lang cl', 'cl.id=csv.calc_lang')
+		->leftjoin('calc_teacher ctch', 'ctch.id=cgt.calc_teacher')
+		->leftjoin('user u', 'u.calc_teacher=ctch.id')
+		->leftjoin('status st', 'u.status=st.id')
+		->where([
+            'csn.id' => $this->id,
+            'cgt.visible' => 1,
+            'u.visible' => 1,
+        ])
+		->orderBy(['u.id' => SORT_ASC])
+		->all();
+		
+		//выбираем список менеджеров офисов где провоходят занятия активных курсов 
+		$managers = (new \yii\db\Query())
+		->select('u.id as uid, u.name as title')
+		->from('calc_studname csn')
+		->leftjoin('calc_studgroup csg', 'csn.id=csg.calc_studname')
+		->leftjoin('calc_groupteacher cgt', 'cgt.id=csg.calc_groupteacher')
+		->leftjoin('calc_service csv', 'csv.id=cgt.calc_service')
+		->leftjoin('calc_office cof', 'cof.id = cgt.calc_office')
+		->leftjoin('user u', 'u.calc_office=cof.id')
+		->leftjoin('status st', 'u.status=st.id')
+		->where([
+            'csn.id' => $this->id,
+            'cgt.visible' => 1,
+            'u.visible' => 1,
+        ])
+		->orderBy(['cgt.data' => SORT_DESC])
+		->all();
+
+		$allusers = array_merge($chiefs, $teachers, $managers);
+		$users = [];
+		foreach ($allusers as $user){
+			$users[$user['uid']] = $user['title'];
+		}
+		return array_unique($users);
     }
 }

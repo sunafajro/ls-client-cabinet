@@ -42,7 +42,7 @@ $this->title = Yii::$app->params['siteTitle'];
                                     <?php $num = 1; ?>
                                     <?php foreach ($lessons as $attend) { ?>
                                         <?php if ($course['courseid'] == $attend['courseid']) { ?>
-                                            <?= $this->render('lessonModal', [
+                                            <?= $this->render('_lessonModal', [
                                                 'attend' => $attend
                                             ]) ?>
                                             <?php $num += 1; ?>

@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\ChangeUsernameForm;
 use app\models\ChangePasswordForm;
+use app\models\Message;
 use app\models\Student;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -64,7 +65,7 @@ class StudentController extends Controller {
         $student = Student::findOne(Yii::$app->user->id);
         $payments = $student ? $student->getPayments() : [];
         return $this->render('payments', [
-            'payments' => $payments
+            'payments' => $payments,
         ]);
     }
 
@@ -78,7 +79,7 @@ class StudentController extends Controller {
             'lessons' => $lessons,
             'comments' => $comments,
             'currentPage' => $page,
-            'totalPages' => ceil($total->totalCount / $limit)
+            'totalPages' => ceil($total->totalCount / $limit),
         ]);
     }
 
@@ -87,14 +88,45 @@ class StudentController extends Controller {
         $student = Student::findOne(Yii::$app->user->id);
         $attestations = $student ? $student->getAttestations() : [];
         return $this->render('attestations', [
-            'grades' => $attestations
+            'grades' => $attestations,
         ]);  
     }
 
     public function actionMessages()
     {
+        $messageForm = new Message();
+        $student = Student::findOne(Yii::$app->user->id);
+        $messages = $student->getMessages();
+        $receivers = $student->availableMessageReceiversList();
+        if (Yii::$app->request->isPost && $messageForm->load(Yii::$app->request->post())) {
+            $messageForm->calc_messwhomtype = 100;
+            $messageForm->send = 1;
+            $messageForm->user = Yii::$app->user->id;
+            $messageForm->data = date('Y-m-d H:i:s');
+            $messageForm->visible = 1;
+            if ($messageForm->save()) {
+                $messageReport = (new \yii\db\Query())
+                ->createCommand()
+                ->insert(
+                    'calc_messreport',
+                    [
+                        'calc_message' => $messageForm->id,
+                        'user' => $messageForm->refinement_id,
+                        'ok' => 0,
+                        'data' => date('Y-m-d H:i:s'),
+                        'send' => 1
+                    ]
+                )->execute();;
+                $messageForm = new Message();
+                Yii::$app->session->setFlash('success', Yii::t('app', 'Message successfully sended'));
+            } else {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Failed to send message'));
+            }
+        }
         return $this->render('messages', [
-            
+            'messages' => $messages,
+            'messageForm' => $messageForm,
+            'receivers' => $receivers,
         ]);
     }
 
@@ -122,7 +154,7 @@ class StudentController extends Controller {
         }
         return $this->render('settings', [
             'changeUsername' => $changeUsername,
-            'changePassword' => $changePassword
+            'changePassword' => $changePassword,
         ]);
     }
 }

@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use Yii;
 use app\models\LoginForm;
-use app\models\Message;
 use app\models\Student;
 use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
@@ -77,9 +76,8 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $message = new Message();
         $student = Student::findOne(Yii::$app->user->id);
-        $messages = $message->getNews(Yii::$app->user->id);
+        $messages = $student->getNews();
         list($comments, $total) = $student ? $student->getLessonsComments(5, 0) : [[], []];
         return $this->render('index', [
             'messages' => $messages,
