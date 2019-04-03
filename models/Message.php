@@ -59,7 +59,7 @@ class Message extends \yii\db\ActiveRecord {
             'send' => Yii::t('app', 'Is sended'),
             'calc_messwhomtype' => Yii::t('app','Receiver type'),
             'refinement' => Yii::t('app','Receiver name'),
-            'refinement_id' => Yii::t('app','Receiver id'),
+            'refinement_id' => Yii::t('app','Receiver name'),
             
         ];
     }
