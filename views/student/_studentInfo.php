@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $balance
- * @var $student
+ * @var yii\web\View $this
+ * @var number $balance
+ * @var array $student
  */
 
 use Yii;
