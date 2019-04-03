@@ -437,6 +437,81 @@ class Student extends \yii\db\ActiveRecord
         return $dolg1 + $dolg2;
     }
 
+    public function getTeachers()
+    {
+        $teachersRawIds = (new \yii\db\Query())
+        ->select([
+            'id' => 'tg.calc_teacher',
+        ])
+		->from(['sn' => 'calc_studname'])
+		->innerJoin(['sg' => 'calc_studgroup'], 'sn.id = sg.calc_studname')
+        ->innerJoin(['gt' => 'calc_groupteacher'], 'gt.id = sg.calc_groupteacher')
+        ->innerJoin(['tg' => 'calc_teachergroup'], 'tg.calc_groupteacher = gt.id')
+		->where([
+            'sn.id' => $this->id,
+            'sg.visible' => 1,
+            'tg.visible' => 1,
+        ])
+        ->all();
+
+        $teachers = [];
+        $teachersIds = [];
+        foreach ($teachersRawIds as $teaherId) {
+            $teachersIds[] = $teaherId['id'];
+        }
+        $teachersIds = array_unique($teachersIds);
+        
+        if (!empty($teachersIds)) {
+            $teachersInfo = (new \yii\db\Query())
+            ->select([
+                'id' => 'u.id',
+                'name' => 't.name',
+                'photo' => 'u.logo',
+                'tid' => 't.id',
+            ])
+            ->from(['t' => 'calc_teacher'])
+            ->innerJoin(['u' => 'user'], 'u.calc_teacher = t.id')
+            ->where([
+                't.id' => $teachersIds
+            ])
+            ->orderBy(['t.name' => SORT_ASC])
+            ->all();
+    
+            foreach($teachersInfo as $teacherInfo) {
+                $teachers[$teacherInfo['tid']] = [
+                    'id' => $teacherInfo['id'],
+                    'name' => $teacherInfo['name'],
+                    'languages' => [],
+                    'photo' => $teacherInfo['photo'],
+                ];
+            }
+
+            $teachersLanguages = (new \yii\db\Query())
+            ->select([
+                'id' => 'lt.calc_teacher',
+                'name' => 'l.name',
+            ])
+            ->from(['l' => 'calc_lang'])
+            ->innerJoin(['lt' => 'calc_langteacher'], 'l.id = lt.calc_lang')
+            ->where([
+                'lt.calc_teacher' => $teachersIds,
+                'lt.visible' => 1,
+            ])
+            // 16 = без привязки к языку
+            ->andWhere(['!=', 'l.id', 16])
+            ->orderBy(['l.name' => SORT_ASC])
+            ->all();
+
+            foreach($teachersLanguages as $teacherLanguage) {
+                if (isset($teachers[$teacherLanguage['id']])) {
+                    $teachers[$teacherLanguage['id']]['languages'][] = $teacherLanguage['name'];
+                }
+            }
+        }
+
+        return $teachers;
+    }
+
     public function availableMessageReceiversList()
     {
 		//выбираем руководителей

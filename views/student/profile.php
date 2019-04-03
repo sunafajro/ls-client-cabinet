@@ -1,12 +1,13 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $balance
- * @var $lessons
- * @var $schedule
- * @var $services
- * @var $student
+ * @var yii\web\View $this
+ * @var number $balance
+ * @var array $lessons
+ * @var array $schedule
+ * @var array $services
+ * @var array $student
+ * @var array $teachers
  */
 
 use Yii;
@@ -17,7 +18,7 @@ $this->title = Yii::$app->params['siteTitle'];
 <div class="content-block">
     <div class="row">
         <div class="col-xs-12 col-sm-9">
-            <?= $this->render('studentInfo.php', [
+            <?= $this->render('_studentInfo', [
                 'student' => $student,
                 'balance' => $balance
             ]) ?>
@@ -51,7 +52,9 @@ $this->title = Yii::$app->params['siteTitle'];
             <?php } ?>        
         </div>
         <div class="col-xs-12 col-sm-3">
-        
+            <?= $this->render('_teachersSlider', [
+                'teachers' => $teachers,
+            ]) ?>
         </div>
     </div>
     <div class="row">
@@ -130,7 +133,7 @@ $this->title = Yii::$app->params['siteTitle'];
 <?php
 $js = <<< JS
 $(function () {
-    $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').tooltip();
 });
 JS;
 $this->registerJs($js);

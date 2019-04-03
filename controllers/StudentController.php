@@ -51,12 +51,14 @@ class StudentController extends Controller {
             $lessons
         );
         $schedule = $student->getSchedule();
+        $teachers = $student->getTeachers();
         return $this->render('profile', [
             'balance' => $balance,
             'lessons' => $lessons,
             'schedule' => $schedule,
             'services' => $services,
             'student' => $student,
+            'teachers' => $teachers,
         ]);
     }
 
