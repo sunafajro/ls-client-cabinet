@@ -232,10 +232,31 @@ class Student extends \yii\db\ActiveRecord
         return $lessons;
     }
 
+    public function getAttestation($id)
+    {
+        $attestation = (new \yii\db\Query())
+        ->select([
+            'id' => 'sg.id',
+            'date' => 'sg.date',
+            'score' => 'sg.score',
+            'type' => 'sg.type',
+            'description' => 'sg.description',
+        ])
+        ->from(['sg' => 'student_grades'])
+        ->where([
+            'sg.id' => $id,
+            'sg.calc_studname' => $this->id,
+        ])
+        ->one();
+
+        return $attestation;
+    }
+
     public function getAttestations()
     {
-        $grades = (new \yii\db\Query())
+        $query = (new \yii\db\Query())
         ->select([
+            'id' => 'sg.id',
             'date' => 'sg.date',
             'score' => 'sg.score',
             'type' => 'sg.type',
@@ -246,10 +267,11 @@ class Student extends \yii\db\ActiveRecord
             'sg.visible' => 1,
             'sg.calc_studname' => $this->id,
         ])
-        ->orderBy(['sg.date' => SORT_DESC])
-        ->all();
+        ->orderBy(['sg.date' => SORT_DESC]);
         
-        return $grades;
+        return new ActiveDataProvider([
+            'query' => $query,
+        ]);
     }
 
     public function getPassedLessonsByService()
