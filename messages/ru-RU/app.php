@@ -1,6 +1,7 @@
 <?php
 return [
     'Access for your account was restricted. Please contact your office manager.' => 'Доступ в Ваш личный кабинет был ограничен. Для повторной активации кабинета обратитесть к вашему менеджеру.',
+    'Act.' => 'Дейст.',
     'Attestations' => 'Аттестации',
     'Balance' => 'Баланс',
     'Change login parameters' => 'Изменить параметры входа',
