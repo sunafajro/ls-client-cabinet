@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $lessons
- * @var $comments
- * @var $currentPage
- * @var $totalPages
+ * @var yii\web\View $this
+ * @var array $lessons
+ * @var array $comments
+ * @var integer $currentPage
+ * @var integer $totalPages
  */
 
 use Yii;

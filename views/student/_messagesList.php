@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @var $this yii\widgets\ListView
- * @var $model
+ * @var yii\widgets\ListView $this
+ * @var array $model
  */
 
 use Yii;

@@ -1,7 +1,7 @@
 <?php
 /**
- *  @var $this yii\web\View
- *  @var $attend
+ *  @var yii\web\View $this
+ *  @var array $attend
  */
 
 use yii\helpers\Html;
