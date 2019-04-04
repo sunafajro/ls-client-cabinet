@@ -2,6 +2,7 @@
 return [
     'Access for your account was restricted. Please contact your office manager.' => 'Доступ в Ваш личный кабинет был ограничен. Для повторной активации кабинета обратитесть к вашему менеджеру.',
     'Act.' => 'Дейст.',
+    'Attestation' => 'Аттестация',
     'Attestations' => 'Аттестации',
     'Balance' => 'Баланс',
     'Change login parameters' => 'Изменить параметры входа',
@@ -54,6 +55,7 @@ return [
     'Settings' => 'Настройки',
     'Sum' => 'Сумма',
     'Teacher' => 'Преподаватель',
+    'The requested page does not exist.' => 'Запрошенная страница не найдена.',
     'Total payments sum' => 'Общая сумма оплат',
     'Username' => 'Логин',
     'Username contains restricted symbols' => 'Логин содержит запрещённые символы',
