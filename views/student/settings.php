@@ -1,11 +1,11 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $formUsername yii\bootstrap\ActiveForm
- * @var $formPassword yii\bootstrap\ActiveForm
- * @var $changeUsername app\models\ChangeUsernameForm
- * @var $changePassword app\models\ChangePasswordForm
+ * @var yii\web\View                  $this
+ * @var yii\bootstrap\ActiveForm      $formUsername
+ * @var yii\bootstrap\ActiveForm      $formPassword
+ * @var app\models\ChangeUsernameForm $changeUsername
+ * @var app\models\ChangePasswordForm $changePassword
  */
 
 use Yii;

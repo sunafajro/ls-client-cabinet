@@ -2,7 +2,7 @@
 
 /**
  * @var yii\web\View $this
- * @var number $balance
+ * @var float $balance
  * @var array $lessons
  * @var array $schedule
  * @var array $services

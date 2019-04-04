@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $payments
+ * @var yii\web\View $this
+ * @var array $payments
  */
 
 use Yii;

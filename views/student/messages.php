@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $messages
- * @var $messageForm
- * @var $receivers
+ * @var yii\web\View $this
+ * @var array $messages
+ * @var app\models\Message $messageForm
+ * @var array $receivers
  */
 
 use Yii;
