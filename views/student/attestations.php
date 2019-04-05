@@ -4,6 +4,7 @@
  * @var yii\web\View $this
  * @var array $grades
  */
+
 use Yii;
 use yii\helpers\Html;
 use yii\grid\GridView;
@@ -17,7 +18,7 @@ $this->title = Yii::$app->params['siteTitle'];
         </div>
         <?= GridView::widget([
             'dataProvider' => $grades,
-            'layout'=>"{items}\n{pager}",
+            'layout' => "{items}\n{pager}",
             'columns' => [
                 [
                     'class' => 'yii\grid\SerialColumn',
@@ -62,12 +63,12 @@ $this->title = Yii::$app->params['siteTitle'];
                                 '',
                                 [
                                     'class' => 'glyphicon glyphicon-print',
-                                    'aria-hidden' => true
+                                    'aria-hidden' => true,
                                 ]),
                                 ['student/download-attestation', 'id' => $grade['id']],
                                 [
                                     'class' => 'btn btn-default btn-xs',
-                                    'target' => '_blank'
+                                    'target' => '_blank',
                                 ]
                             );
                         }

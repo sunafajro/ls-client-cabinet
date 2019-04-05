@@ -16,3 +16,6 @@ use Yii;
 <p>
     <b><?= Yii::t('app', 'Score') ?>:</b> <?= $attestation['score'] ?>
 </p>
+<p>
+    <b><?= Yii::t('app', 'Student') ?>:</b> <?= Yii::$app->user->identity->name ?>
+</p>

@@ -53,6 +53,7 @@ return [
     'Score' => 'Оценка',
     'Services' => 'Услуги',
     'Settings' => 'Настройки',
+    'Student' => 'Студент',
     'Sum' => 'Сумма',
     'Teacher' => 'Преподаватель',
     'The requested page does not exist.' => 'Запрошенная страница не найдена.',

@@ -246,6 +246,7 @@ class Student extends \yii\db\ActiveRecord
         ->where([
             'sg.id' => $id,
             'sg.calc_studname' => $this->id,
+            'sg.visible' => 1,
         ])
         ->one();
 
@@ -264,13 +265,24 @@ class Student extends \yii\db\ActiveRecord
         ])
         ->from(['sg' => 'student_grades'])
         ->where([
-            'sg.visible' => 1,
             'sg.calc_studname' => $this->id,
+            'sg.visible' => 1,
         ])
         ->orderBy(['sg.date' => SORT_DESC]);
         
         return new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+            'sort'=> [
+                'attributes' => [
+                    'date',
+                ],
+                'defaultOrder' => [
+                    'date' => SORT_DESC
+                ],
+            ],
         ]);
     }
 
