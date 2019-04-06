@@ -14,7 +14,7 @@ use yii\helpers\Html;
         <?php foreach ($teachers as $key => $teacher) { ?>
             <div class="item <?= $key === $firstItemKey ? 'active' : '' ?>">
                 <?php if ($teacher['photo']) { ?>
-                    <?= Html::img("//calc.language-school.ru/uploads/user/" . $teacher['id'] . "/logo/" . $teacher['photo'], ['alt' => $teacher['name'], 'style' => 'margin: 0 auto']) ?>
+                    <?= Html::img('@web/images/user/' . $teacher['id'] . '/logo/' . $teacher['photo'], ['alt' => $teacher['name'], 'style' => 'margin: 0 auto']) ?>
                 <?php } else { ?>
                     <?= Html::img('@web/images/no-photo.jpg', ['alt' => Yii::t('app', 'No photo'), 'style' => 'margin: 0 auto']) ?>
                 <?php } ?>
