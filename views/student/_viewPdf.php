@@ -6,16 +6,60 @@
  */
 
 use Yii;
+use yii\helpers\Html;
+use yii\helpers\Url;
 ?>
-<p>
-    <b><?= Yii::t('app', 'Date') ?>:</b> <?= date('d.m.Y', strtotime($attestation['date'])) ?>
-</p>
-<p>
-    <b><?= Yii::t('app', 'Description') ?>:</b> <?= $attestation['description'] ?>
-</p>
-<p>
-    <b><?= Yii::t('app', 'Score') ?>:</b> <?= $attestation['score'] ?>
-</p>
-<p>
-    <b><?= Yii::t('app', 'Student') ?>:</b> <?= Yii::$app->user->identity->name ?>
-</p>
+<div class="body">
+<div class="outer-block">
+      <div class="header-block">
+        <div class="logo-block">
+          <?= Html::img(Url::to('./images/yazyk_uspekha_logo_1.png'), ['class' => 'logo']) ?>
+        </div>
+        <div class="title-block">
+          <div>
+            Негосударственное образовательное учреждение дополнительного и
+            дополнительного профессионального образования
+          </div>
+          <div>
+            Школа иностранных языков "Язык для успеха"
+          </div>
+        </div>
+        <div style="clear: both"></div>
+      </div>
+      <div class="reginfo">
+          Дата: <?= date('d.m.Y', strtotime($attestation['date'])) ?><br />
+          Регистрационный номер: <?= date('ymd', strtotime($attestation['date'])) . '-' . $attestation['id'] ?><br />
+          г. Чебоксары<br />
+      </div>
+      <div class="text-description-block">
+          Настоящим удостоверяется, что
+      </div>
+      <div class="text-result-block">
+          <?= Yii::$app->user->identity->name ?>
+      </div>
+      <div class="text-description-block">
+          сдал
+      </div>
+      <div class="text-result-block">
+          <?= $attestation['description'] ?>
+      </div>
+      <div class="text-description-block">
+          с результатом
+      </div>
+      <div class="text-result-block">
+          <?= $attestation['score'] . ((int)$attestation['type'] === 0 ? 'баллов' : (int)$attestation['type'] === 1 ? '%' : '') ?>
+      </div>
+      <div class="sign-block">
+        <div class="left-sign-block">
+            Директор   
+        </div>
+        <div class="right-sign-block">
+            Филиппова А.К.
+        </div>
+        <div style="clear: both"></div>
+      </div>
+      <div class="licence">
+          Лицензия Министерства образования ЧР № 799 от 27.02.2014 г. серия 21ЛО1 № 0000152
+      </div>
+    </div>
+</div>
