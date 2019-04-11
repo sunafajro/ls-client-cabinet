@@ -16,6 +16,7 @@ return [
     'Full name' => 'ФИО',
     'Home' => 'Главная',
     'Homework' => 'Домашнее задание',
+    'Incorrect username or password' => 'Неправильное имя пользователя или пароль',
     'Information' => 'Информация',
     'Language' => 'Язык',
     'Last comments' => 'Последние комментарии',
