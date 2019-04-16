@@ -2,7 +2,9 @@
 
 /**
  * @var yii\web\View $this
- * @var array $grades
+ * @var array        $contentTypes
+ * @var array        $grades
+ * @var array        $exams
  */
 
 use Yii;
@@ -38,8 +40,26 @@ $this->title = Yii::$app->params['siteTitle'];
                     'attribute' => 'description',
                     'format' => 'raw',
                     'label' => Yii::t('app', 'Description'),
-                    'value' => function ($grade) {
-                        return $grade['description'];
+                    'value' => function ($grade) use ($exams) {
+                        return $exams[$grade['description']] ?? $grade['description'];
+                    }
+                ],
+                [
+                    'attribute' => 'contents',
+                    'format' => 'raw',
+                    'headerOptions' => ['width' => '20%'],
+                    'label' => Yii::t('app', 'Exam contents'),
+                    'value' => function ($grade) use ($contentTypes) {
+                        if ($grade['contents']) {
+                            $contents = [];
+                            $json = json_decode($grade['contents']);
+                            foreach($json ?? [] as $key => $value) {
+                              $contents[] = '<i>' . ($contentTypes[$key] ?? $key) . ':</i> ' . $value;
+                            }
+                            return implode('<br />', $contents);
+                        } else {
+                            return NULL;
+                        }
                     }
                 ],
                 [

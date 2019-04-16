@@ -11,6 +11,7 @@ return [
     'Description' => 'Описание',
     'Duration' => 'Продолжительность',
     'E-mail' => 'Электронная почта',
+    'Exam contents' => 'Содержание экзамена',
     'Failed to send message' => 'Не удалось отправить сообщение',
     'Failed to update login parameters' => 'Не удалось обновить параметры входа',
     'Full name' => 'ФИО',

@@ -105,7 +105,9 @@ class StudentController extends Controller {
         if ($student) {
             $attestations = $student->getAttestations();
             return $this->render('attestations', [
+                'contentTypes' => Student::getExamContentTypes(),
                 'grades' => $attestations,
+                'exams' => Student::getExams(),
             ]);
         } else {
             throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
@@ -193,7 +195,11 @@ class StudentController extends Controller {
                     'format'      => Pdf::FORMAT_A4,
                     'orientation' => Pdf::ORIENT_LANDSCAPE,
                     'destination' => Pdf::DEST_BROWSER, 
-                    'content'     => $this->renderPartial('_viewPdf', ['attestation' => $attestation]),
+                    'content'     => $this->renderPartial('_viewPdf', [
+                        'attestation'  => $attestation,
+                        'contentTypes' => Student::getExamContentTypes(),
+                        'exams'        => Student::getExams(),
+                    ]),
                     'cssFile'     => '@app/web/css/print_attestate.css',
                     'options'     => [
                         'title'   => Yii::t('app', 'Attestation'),

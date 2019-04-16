@@ -31,12 +31,50 @@ use yii\data\ActiveDataProvider;
  */
 class Student extends \yii\db\ActiveRecord
 {
+    const EXAM_YLE_STARTERS = 'yleStarters';
+    const EXAM_YLE_MOVERS   = 'yleMovers';
+    const EXAM_YLE_FLYERS   = 'yleFlyers';
+    const EXAM_KET_A2       = 'ketA2';
+    const EXAM_PET_B1       = 'petB1';
+    const EXAM_FCE_B2       = 'fceB2';
+
+    const EXAM_CONTENT_LISTENING           = 'listening';
+    const EXAM_CONTENT_READING_AND_WRITING = 'readingAndWriting';
+    const EXAM_CONTENT_SPEAKING            = 'speaking';
+    const EXAM_CONTENT_READING             = 'reading';
+    const EXAM_CONTENT_USE_OF_ENGLISH      = 'useOfEnglish';
+    const EXAM_CONTENT_WRITING             = 'writing';
+
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'calc_studname';
+    }
+
+    public static function getExams() : array
+    {
+        return [
+            self::EXAM_YLE_STARTERS => 'YLE starters',
+            self::EXAM_YLE_MOVERS   => 'YLE movers',
+            self::EXAM_YLE_FLYERS   => 'YLE flyers',
+            self::EXAM_KET_A2       => 'KET - A2',
+            self::EXAM_PET_B1       => 'PET - B1',
+            self::EXAM_FCE_B2       => 'FCE - B2',
+        ];
+    }
+
+    public static function getExamContentTypes() : array
+    {
+        return [
+            self::EXAM_CONTENT_LISTENING            => 'Listening',
+            self::EXAM_CONTENT_READING_AND_WRITING  => 'Reading & Writing',
+            self::EXAM_CONTENT_SPEAKING             => 'Speaking',
+            self::EXAM_CONTENT_READING              => 'Reading',
+            self::EXAM_CONTENT_USE_OF_ENGLISH       => 'Use of English',
+            self::EXAM_CONTENT_WRITING              => 'Writing',
+        ];
     }
 
     /**
@@ -241,6 +279,7 @@ class Student extends \yii\db\ActiveRecord
             'score' => 'sg.score',
             'type' => 'sg.type',
             'description' => 'sg.description',
+            'contents' => 'sg.contents',
         ])
         ->from(['sg' => 'student_grades'])
         ->where([
@@ -262,6 +301,7 @@ class Student extends \yii\db\ActiveRecord
             'score' => 'sg.score',
             'type' => 'sg.type',
             'description' => 'sg.description',
+            'contents' => 'sg.contents',
         ])
         ->from(['sg' => 'student_grades'])
         ->where([
