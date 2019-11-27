@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\Client;
 use Yii;
 use yii\base\Model;
 
@@ -73,10 +74,22 @@ class LoginForm extends Model
      */
     public function login()
     {
-        if ($this->validate()) {
-            return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
+        if (!$this->validate()) {
+            return false;
         }
-        return false;
+        $user = $this->getUser();
+        if (empty($user)) {
+            return false;
+        }
+        $client = Client::find()->where(['calc_studname' => $user->id])->one();
+        if (empty($client)) {
+            return false;
+        }
+        $client->date = date('Y-m-d');
+        if (!$client->save(true, ['date'])) {
+            return false;
+        }
+        return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
     }
 
     /**
