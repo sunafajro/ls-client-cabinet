@@ -2,7 +2,7 @@
 
 return [
     'adminEmail' => 'admin@example.com',
-    'siteCompany' => 'Школа иностранных языков "Язык для успеха"',
+    'siteCompany' => 'Моя компания',
     'siteName' => 'Личный кабинет',
-    'siteTitle' => 'Личный кабинет :: Язык для Успеха',
+    'siteTitle' => 'Личный кабинет :: <Моя компания>',
 ];

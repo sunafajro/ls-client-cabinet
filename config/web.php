@@ -1,17 +1,25 @@
 <?php
 
-$params = require __DIR__ . '/params.php';
-$db = require __DIR__ . '/db.php';
+$aliases = require __DIR__ . '/aliases.php';
+$db      = require __DIR__ . '/db.php';
+$params  = require __DIR__ . '/params.php';
+
+if (file_exists(__DIR__ . '/local/db.php')) {
+    require(__DIR__ . '/local/db.php');
+    $db = array_merge($db, $localDb);
+}
+
+if (file_exists(__DIR__ . '/local/params.php')) {
+    require(__DIR__ . '/local/params.php');
+    $params = array_merge($params, $localParams);
+}
 
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'language' => 'ru-RU',
-    'aliases' => [
-        '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
-    ],
+    'aliases' => $aliases,
     'components' => [
         'request' => [
             'cookieValidationKey' => 'your secret key here',
@@ -57,6 +65,11 @@ $config = [
     ],
     'params' => $params,
 ];
+
+if (file_exists(__DIR__ . '/local/request.php')) {
+    require(__DIR__ . '/local/request.php');
+    $config['components']['request'] = array_merge($config['components']['request'], $localRequest);
+}
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
