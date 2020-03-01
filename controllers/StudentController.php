@@ -106,8 +106,8 @@ class StudentController extends Controller {
             $attestations = $student->getAttestations();
             return $this->render('attestations', [
                 'contentTypes' => Student::getExamContentTypes(),
-                'grades' => $attestations,
-                'exams' => Student::getExams(),
+                'grades'       => $attestations,
+                'exams'        => Student::getExams(),
             ]);
         } else {
             throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
@@ -190,28 +190,11 @@ class StudentController extends Controller {
         if ($student) {
             $attestation = $student->getAttestation($id);
             if ($attestation) {                
-                $pdf = new Pdf([
-                    'mode'        => Pdf::MODE_UTF8,
-                    'format'      => Pdf::FORMAT_A4,
-                    'orientation' => Pdf::ORIENT_LANDSCAPE,
-                    'destination' => Pdf::DEST_BROWSER, 
-                    'content'     => $this->renderPartial('_viewPdf', [
-                        'attestation'  => $attestation,
-                        'contentTypes' => Student::getExamContentTypes(),
-                        'exams'        => Student::getExams(),
-                    ]),
-                    'cssFile'     => '@app/web/css/print_attestate.css',
-                    'options'     => [
-                        'title'   => Yii::t('app', 'Attestation'),
-                    ],
-                    'marginHeader' => 0,
-                    'marginFooter' => 0,
-                    'marginTop'    => 0,
-                    'marginBottom' => 0,
-                    'marginLeft'   => 0,
-                    'marginRight'  => 0,
-                ]);
-                return $pdf->render();
+                $filePath = Yii::getAlias("@attestates/{$student->id}/attestate-{$id}.pdf");
+                if (!file_exists($filePath)) {
+                    throw new NotFoundHttpException('The requested page does not exist.');
+                }
+                return Yii::$app->response->sendFile($filePath);
             } else {
                 throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
             }

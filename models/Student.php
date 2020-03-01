@@ -31,12 +31,15 @@ use yii\data\ActiveDataProvider;
  */
 class Student extends \yii\db\ActiveRecord
 {
-    const EXAM_YLE_STARTERS = 'yleStarters';
-    const EXAM_YLE_MOVERS   = 'yleMovers';
-    const EXAM_YLE_FLYERS   = 'yleFlyers';
-    const EXAM_KET_A2       = 'ketA2';
-    const EXAM_PET_B1       = 'petB1';
-    const EXAM_FCE_B2       = 'fceB2';
+    const EXAM_YLE_STARTERS    = 'yleStarters';
+    const EXAM_YLE_MOVERS      = 'yleMovers';
+    const EXAM_YLE_FLYERS      = 'yleFlyers';
+    const EXAM_KET_A2          = 'ketA2';
+    const EXAM_PET_B1          = 'petB1';
+    const EXAM_FCE_B2          = 'fceB2';
+    const EXAM_TEXT_BOOK_FINAL = 'text_book_final';
+    const EXAM_OLYMPIAD        = 'olympiad';
+    const EXAM_DICTATION       = 'dictation';
 
     const EXAM_CONTENT_LISTENING           = 'listening';
     const EXAM_CONTENT_READING_AND_WRITING = 'readingAndWriting';
@@ -44,6 +47,13 @@ class Student extends \yii\db\ActiveRecord
     const EXAM_CONTENT_READING             = 'reading';
     const EXAM_CONTENT_USE_OF_ENGLISH      = 'useOfEnglish';
     const EXAM_CONTENT_WRITING             = 'writing';
+
+    const EXAM_CONTENT_WROTE_AN           = 'wroteAn';
+    const EXAM_CONTENT_TOOK_PART_IN       = 'tookPartIn';
+    const EXAM_CONTENT_BECAME_WHO         = 'becameWho';
+    const EXAM_CONTENT_TOOK_THE_COURSE    = 'tookTheCourse';
+    const EXAM_CONTENT_ACCORDING_TO_BOOK  = 'according_to_book';
+    const EXAM_CONTENT_COURSE_HOURS_COUNT = 'course_hours_count';
 
     /**
      * @inheritdoc
@@ -56,12 +66,15 @@ class Student extends \yii\db\ActiveRecord
     public static function getExams() : array
     {
         return [
-            self::EXAM_YLE_STARTERS => 'YLE starters',
-            self::EXAM_YLE_MOVERS   => 'YLE movers',
-            self::EXAM_YLE_FLYERS   => 'YLE flyers',
-            self::EXAM_KET_A2       => 'KET - A2',
-            self::EXAM_PET_B1       => 'PET - B1',
-            self::EXAM_FCE_B2       => 'FCE - B2',
+            self::EXAM_YLE_STARTERS    => 'YLE starters',
+            self::EXAM_YLE_MOVERS      => 'YLE movers',
+            self::EXAM_YLE_FLYERS      => 'YLE flyers',
+            self::EXAM_KET_A2          => 'KET - A2',
+            self::EXAM_PET_B1          => 'PET - B1',
+            self::EXAM_FCE_B2          => 'FCE - B2',
+            self::EXAM_TEXT_BOOK_FINAL => 'Итоговый тест по учебнику',
+            self::EXAM_OLYMPIAD        => 'Олимпиада',
+            self::EXAM_DICTATION       => 'Тотальный диктант',
         ];
     }
 
@@ -74,6 +87,12 @@ class Student extends \yii\db\ActiveRecord
             self::EXAM_CONTENT_READING              => 'Reading',
             self::EXAM_CONTENT_USE_OF_ENGLISH       => 'Use of English',
             self::EXAM_CONTENT_WRITING              => 'Writing',
+            self::EXAM_CONTENT_WROTE_AN             => 'Написал',
+            self::EXAM_CONTENT_TOOK_PART_IN         => 'Принял участие в',
+            self::EXAM_CONTENT_BECAME_WHO           => 'Стал',
+            self::EXAM_CONTENT_TOOK_THE_COURSE      => 'По прохождению курса',
+            self::EXAM_CONTENT_ACCORDING_TO_BOOK    => 'По учебнику',
+            self::EXAM_CONTENT_COURSE_HOURS_COUNT   => 'В количестве часов',
         ];
     }
 
@@ -296,17 +315,17 @@ class Student extends \yii\db\ActiveRecord
     {
         $query = (new \yii\db\Query())
         ->select([
-            'id' => 'sg.id',
-            'date' => 'sg.date',
-            'score' => 'sg.score',
-            'type' => 'sg.type',
+            'id'          => 'sg.id',
+            'date'        => 'sg.date',
+            'score'       => 'sg.score',
+            'type'        => 'sg.type',
             'description' => 'sg.description',
-            'contents' => 'sg.contents',
+            'contents'    => 'sg.contents',
         ])
         ->from(['sg' => 'student_grades'])
         ->where([
             'sg.calc_studname' => $this->id,
-            'sg.visible' => 1,
+            'sg.visible'       => 1,
         ])
         ->orderBy(['sg.date' => SORT_DESC]);
         
