@@ -117,3 +117,26 @@ a.desc:after {
 .content-block {
     margin: 70px 0 0 0;
 }
+
+.site-login {
+    margin-top: 1rem;
+}
+
+/** site logo */
+.site-logo {
+    max-width: 90px;
+    max-height: 90px;
+    width: 20vw;
+}
+
+.site-logo .title {
+    fill: #f60;
+}
+
+.site-logo .line {
+    fill: #005bd4;
+}
+
+.site-logo .desc {
+    fill: #353535;
+}
