@@ -39,7 +39,7 @@ use yii\web\View;
 	    <div class="modal-content">
 		    <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="hometask-<?= $attend['lessonid'] ?>"><?= $attend['lessondate'] ?></h4>
+                <h4 class="modal-title" id="hometask-<?= $attend['lessonid'] ?>">Занятие <?= date('d.m.Y', strtotime($attend['lessondate'])) ?></h4>
             </div>
 		    <div class="modal-body">
                 <p><b><?= Yii::t('app', 'Description') ?>:</b> <?= $attend['description'] ?></p>
