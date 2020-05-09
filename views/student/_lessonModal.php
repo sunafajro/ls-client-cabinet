@@ -1,10 +1,13 @@
 <?php
 /**
- *  @var yii\web\View $this
+ *  @var View $this
  *  @var array $attend
  */
 
+use app\models\Student;
 use yii\helpers\Html;
+use yii\web\View;
+
 ?>
 <?php
     $className = '';
@@ -42,6 +45,7 @@ use yii\helpers\Html;
                 <p><b><?= Yii::t('app', 'Description') ?>:</b> <?= $attend['description'] ?></p>
                 <p><b><?= Yii::t('app', 'Homework') ?>:</b> <?= $attend['homework'] ?></p>
                 <p><b><?= Yii::t('app', 'Comments/Recomendations') ?>:</b> <?= $attend['comm'] ?></p>
+                <p><b>Успешиков</b>: <?= $attend['successes'] ? join('', Student::prepareStudentSuccessesList((int)$attend['successes'])) : '-' ?></p>
             </div>
 		</div>
 	</div>

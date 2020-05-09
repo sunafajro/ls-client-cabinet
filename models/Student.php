@@ -271,7 +271,8 @@ class Student extends ActiveRecord
             'courseid' => 's.id',
             'lessonid' => 'jg.id',
             'description' => 'jg.description', 
-            'homework' => 'jg.homework'
+            'homework' => 'jg.homework',
+            'successes' => 'sjg.successes',
         ]) 
 		->from(['sjg' => 'calc_studjournalgroup']) 
 		->leftjoin(['gt' => 'calc_groupteacher'], 'gt.id = sjg.calc_groupteacher')
