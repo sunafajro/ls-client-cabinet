@@ -5,6 +5,9 @@ use Yii;
 
 use yii\data\Pagination;
 use yii\data\ActiveDataProvider;
+use yii\db\ActiveRecord;
+use yii\db\Query;
+use yii\helpers\Html;
 
 /**
  * This is the model class for table "calc_studname".
@@ -29,7 +32,7 @@ use yii\data\ActiveDataProvider;
  * @property integer calc_way
  * @property string description
  */
-class Student extends \yii\db\ActiveRecord
+class Student extends ActiveRecord
 {
     const EXAM_YLE_STARTERS    = 'yleStarters';
     const EXAM_YLE_MOVERS      = 'yleMovers';
@@ -143,7 +146,7 @@ class Student extends \yii\db\ActiveRecord
             return null;
         }
 
-        $student = (new \yii\db\Query())
+        $student = (new Query())
         ->select([
             'id' => 's.id',
             'active' => 's.active',
@@ -176,7 +179,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getNews()
     {
-        $query = (new \yii\db\Query())
+        $query = (new Query())
         ->select([
             'date' => 'm.data',
             'files' => 'm.files',
@@ -202,11 +205,12 @@ class Student extends \yii\db\ActiveRecord
 
     public function getLessonsComments($limit = 10, $offset = 0)
     {
-        $comments = (new \yii\db\Query())
+        $comments = (new Query())
 		->select([
-            'id' => 'jg.id',
-            'date' => 'jg.data',
-            'comments' => 'sjg.comments'
+            'id'        => 'jg.id',
+            'date'      => 'jg.data',
+            'comments'  => 'sjg.comments',
+            'successes' => 'sjg.successes',
         ])
 		->from(['sjg' => 'calc_studjournalgroup'])
 		->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
@@ -231,7 +235,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getPayments()
     {
-        $payments = (new \yii\db\Query())
+        $payments = (new Query())
 		->select([
             'date' => 'ms.data',
             'value' => 'ms.value',
@@ -253,7 +257,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getLessons()
     {
-        $lessons = (new \yii\db\Query())
+        $lessons = (new Query())
 		->select([
             'lessondate' => 'jg.data',
             'comm' => 'sjg.comments',
@@ -291,7 +295,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getAttestation($id)
     {
-        $attestation = (new \yii\db\Query())
+        $attestation = (new Query())
         ->select([
             'id' => 'sg.id',
             'date' => 'sg.date',
@@ -313,7 +317,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getAttestations()
     {
-        $query = (new \yii\db\Query())
+        $query = (new Query())
         ->select([
             'id'          => 'sg.id',
             'date'        => 'sg.date',
@@ -347,7 +351,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getPassedLessonsByService()
     {
-        $lessons = (new \yii\db\Query())
+        $lessons = (new Query())
 		->select([
             'lessonAttend' => 'count(sjg.id)',
             'serviceId' => 'gt.calc_service',
@@ -370,7 +374,7 @@ class Student extends \yii\db\ActiveRecord
     public function getOrderedLessonsByService($ids = [])
     {
         $languages = [];
-        $mdLanguages = (new \yii\db\Query())
+        $mdLanguages = (new Query())
         ->select(['id' => 'id', 'name' => 'name'])
         ->from(['l' => 'calc_lang'])
         ->where([
@@ -383,7 +387,7 @@ class Student extends \yii\db\ActiveRecord
         }
 
         $eduforms = [];
-        $mdEduforms = (new \yii\db\Query())
+        $mdEduforms = (new Query())
         ->select(['id' => 'id', 'name' => 'name'])
         ->from(['l' => 'calc_eduform'])
         ->where([
@@ -395,7 +399,7 @@ class Student extends \yii\db\ActiveRecord
             $eduforms[$eduform['id']] = $eduform['name'];
         }
 
-        $services = (new \yii\db\Query())
+        $services = (new Query())
 		->select([
             'lessonPaied' => 'sum(i.num)',
             'serviceId' => 's.id',
@@ -424,7 +428,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getSchedule()
     {
-		$schedule = (new \yii\db\Query())
+		$schedule = (new Query())
 		->select([
             'coursename' => 'l.name',
             'denname' => 'd.name',
@@ -460,7 +464,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getMessages()
     {
-        $query = (new \yii\db\Query())
+        $query = (new Query())
         ->select([
             'date' => 'm.data',
             'sender' => 'u1.name',
@@ -497,7 +501,7 @@ class Student extends \yii\db\ActiveRecord
         $totalpayedlessons = 0;
         $totalattendedlessons = 0;
         foreach ($services as $lesspaied) {
-            $cost = (new \yii\db\Query())
+            $cost = (new Query())
             ->select(['value' => '(i.value / i.num)'])
             ->from(['i' => 'calc_invoicestud'])
             ->where([
@@ -509,9 +513,7 @@ class Student extends \yii\db\ActiveRecord
             ->limit(1)
             ->one();
             foreach ($lessons as $lessinfo) {
-                $lesscount = 0;
                 $servdolg = 0;
-                $totalcost = 0;    
                 if ((int)$lesspaied['serviceId'] === (int)$lessinfo['serviceId']) {
                     $totalpayedlessons += $lesspaied['lessonPaied'];
                     $totalattendedlessons += $lessinfo['lessonAttend'];
@@ -532,7 +534,7 @@ class Student extends \yii\db\ActiveRecord
 
     public function getTeachers()
     {
-        $teachersRawIds = (new \yii\db\Query())
+        $teachersRawIds = (new Query())
         ->select([
             'id' => 'tg.calc_teacher',
         ])
@@ -555,7 +557,7 @@ class Student extends \yii\db\ActiveRecord
         $teachersIds = array_unique($teachersIds);
         
         if (!empty($teachersIds)) {
-            $teachersInfo = (new \yii\db\Query())
+            $teachersInfo = (new Query())
             ->select([
                 'id' => 'u.id',
                 'name' => 't.name',
@@ -579,7 +581,7 @@ class Student extends \yii\db\ActiveRecord
                 ];
             }
 
-            $teachersLanguages = (new \yii\db\Query())
+            $teachersLanguages = (new Query())
             ->select([
                 'id' => 'lt.calc_teacher',
                 'name' => 'l.name',
@@ -608,7 +610,7 @@ class Student extends \yii\db\ActiveRecord
     public function availableMessageReceiversList()
     {
 		//выбираем руководителей
-		$chiefs = (new \yii\db\Query())
+		$chiefs = (new Query())
 		->select(['uid' => 'u.id', 'title' => 'u.name'])
 		->from(['u' => 'user'])
 		->where([
@@ -620,7 +622,7 @@ class Student extends \yii\db\ActiveRecord
 		->all();
 
 		//выбираем список преподавателей активных курсов
-		$teachers = (new \yii\db\Query())
+		$teachers = (new Query())
 		->select('ctch.name as title, u.id as uid')
 		->from('calc_studname csn')
 		->leftjoin('calc_studgroup csg', 'csn.id=csg.calc_studname')
@@ -639,7 +641,7 @@ class Student extends \yii\db\ActiveRecord
 		->all();
 		
 		//выбираем список менеджеров офисов где провоходят занятия активных курсов 
-		$managers = (new \yii\db\Query())
+		$managers = (new Query())
 		->select('u.id as uid, u.name as title')
 		->from('calc_studname csn')
 		->leftjoin('calc_studgroup csg', 'csn.id=csg.calc_studname')
@@ -663,4 +665,17 @@ class Student extends \yii\db\ActiveRecord
 		}
 		return array_unique($users);
     }
+
+    public static function prepareStudentSuccessesList(int $count)
+    {
+        $successes = [];
+        if ($count > 0) {
+            for ($num = 1; $num <= $count; $num++) {
+                $successes[] = Html::tag('i', '', ['class' => 'fa fa-ticket', 'aria-hidden' => 'true', 'title' => 'Успешик']);
+            }
+        }
+
+        return $successes;
+    }
+
 }

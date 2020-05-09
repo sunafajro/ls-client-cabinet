@@ -19,7 +19,7 @@ class SiteController extends Controller
     {
         return [
             'access' => [
-                'class' => AccessControl::className(),
+                'class' => AccessControl::class,
                 'only' => ['index', 'login', 'logout'],
                 'rules' => [
                     [
@@ -45,7 +45,7 @@ class SiteController extends Controller
                 ],
             ],
             'verbs' => [
-                'class' => VerbFilter::className(),
+                'class' => VerbFilter::class,
                 'actions' => [
                     'logout' => ['post'],
                 ],
@@ -78,7 +78,7 @@ class SiteController extends Controller
     {
         $student = Student::findOne(Yii::$app->user->id);
         $messages = $student->getNews();
-        list($comments, $total) = $student ? $student->getLessonsComments(5, 0) : [[], []];
+        list($comments) = $student ? $student->getLessonsComments(5, 0) : [[], []];
         return $this->render('index', [
             'messages' => $messages,
             'comments' => $comments,

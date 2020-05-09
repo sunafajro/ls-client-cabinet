@@ -1,13 +1,14 @@
 <?php
 
 /**
- * @var $this yii\web\View
- * @var $messages 
- * @var $comments
+ * @var View $this
+ * @var array $messages
+ * @var array $comments
  */
 
-use Yii;
+use app\models\Student;
 use yii\helpers\Html;
+use yii\web\View;
 use yii\widgets\ListView;
 
 $this->title = Yii::$app->params['siteTitle'];
@@ -15,14 +16,20 @@ $this->title = Yii::$app->params['siteTitle'];
 <div class="content-block">
     <div class="row">
         <div class="col-xs-12 col-sm-9">
-            <?= ListView::widget([
-                'dataProvider' => $messages,
-                'itemView' => '_newsList',
-                'layout' => "{items}\n{pager}",
-                'pager' => [
-                    'maxButtonCount' => 5,
-                ],
-            ]) ?>
+            <?php
+                try {
+                    echo ListView::widget([
+                        'dataProvider' => $messages,
+                        'itemView' => '_newsList',
+                        'layout' => "{items}\n{pager}",
+                        'pager' => [
+                            'maxButtonCount' => 5,
+                        ],
+                    ]);
+                } catch (Exception $e) {
+                    echo Html::tag('div', 'Неудалось отобразить виджет.', ['class' => 'alert alert-danger']);
+                }
+            ?>
         </div>
         <div class="col-xs-12 col-sm-3">
             <div class="panel panel-info">
@@ -37,6 +44,7 @@ $this->title = Yii::$app->params['siteTitle'];
                             <p>
                                 <b><?= Yii::t('app', 'Lesson') ?> <?= date('d.m.Y', strtotime($comment['date'])) ?></b><br/>
                                 <i><?= $comment['comments'] ?></i>
+                                <?= $comment['successes'] ? join('', Student::prepareStudentSuccessesList((int)$comment['successes'])) : '' ?>
                             </p>
                             <?php } ?>
                         <div class="text-right">
