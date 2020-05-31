@@ -60,7 +60,7 @@ MessageFormAsset::register($this);
                             foreach ($files as $file) {
                                 echo $this->render('_file_template', [
                                     'file' => $file,
-                                    'model' => $model,
+                                    'model' => $messageForm,
                                 ]);
                             }
                             ?>
