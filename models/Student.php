@@ -467,12 +467,13 @@ class Student extends ActiveRecord
     {
         $query = (new Query())
         ->select([
-            'date' => 'm.data',
-            'sender' => 'u1.name',
+            'id'        => 'm.id',
+            'date'     => 'm.data',
+            'sender'   => 'u1.name',
             'receiver' => 'u2.name',
-            'text' => 'm.description',
-            'title' => 'm.name',
-            'type' => 'm.calc_messwhomtype',
+            'text'     => 'm.description',
+            'title'    => 'm.name',
+            'type'     => 'm.calc_messwhomtype',
         ])
         ->from(['m' => 'calc_message'])
         ->leftjoin(['u1' => 'user'], 'u1.id = m.user')
