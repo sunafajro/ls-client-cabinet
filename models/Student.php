@@ -663,4 +663,51 @@ class Student extends \yii\db\ActiveRecord
 		}
 		return array_unique($users);
     }
+
+    /**
+     * Количество успешиков клиента (полученные минус списанные)
+     * @return int
+     */
+    public function getSuccessesCount() : int
+    {
+        return $this->getReceivedSuccessesCount() - $this->getSpendSuccessesCount();
+    }
+
+    /**
+     * Количество успешиков полученных клиентом за занятиям
+     * @return int
+     */
+    public function getReceivedSuccessesCount() : int
+    {
+        $count = (new \yii\db\Query())
+            ->select(['successes' => 'SUM(sjg.successes)'])
+            ->from(['sjg' => 'calc_studjournalgroup'])
+            ->innerJoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
+            ->andWhere([
+                'sjg.calc_studname' => $this->id,
+                'sjg.calc_statusjournal' => 1,
+                'jg.visible' => 1,
+            ])
+            ->one();
+
+        return $count['successes'] ?? 0;
+    }
+
+    /**
+     * Количество успешиков полученных клиентом за занятиям
+     * @return int
+     */
+    public function getSpendSuccessesCount() : int
+    {
+        $count = (new \yii\db\Query())
+            ->select(['successes' => 'SUM(ss.count)'])
+            ->from(['ss' => 'spend_successes'])
+            ->andWhere([
+                'ss.student_id' => $this->id,
+                'ss.visible' => 1,
+            ])
+            ->one();
+
+        return $count['successes'] ?? 0;
+    }
 }

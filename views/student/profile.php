@@ -83,7 +83,7 @@ $this->title = Yii::$app->params['siteTitle'];
                                     'i',
                                     '',
                                     [
-                                        'class' => 'glyphicon glyphicon-info-sign',
+                                        'class' => 'fa fa-info-circle',
                                         'data-toggle' => 'tooltip',
                                         'data-placement' => 'top',
                                         'aria-hidden' => 'true',
