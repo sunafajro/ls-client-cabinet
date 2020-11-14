@@ -1,15 +1,16 @@
 <?php
 
 /**
- * @var yii\web\View $this
+ * @var View $this
  * @var array $lessons
  * @var array $comments
  * @var integer $currentPage
  * @var integer $totalPages
  */
 
-use Yii;
+use app\models\Student;
 use yii\helpers\Html;
+use yii\web\View;
 
 $this->title = Yii::$app->params['siteTitle'];
 ?>
@@ -82,7 +83,8 @@ $this->title = Yii::$app->params['siteTitle'];
                                     ])
                                 ?>
                             </b><br/>
-                            <em><?= $comment['comments'] ?></em>
+                            <i><?= $comment['comments'] ?></i>
+                            <?= $comment['successes'] ? join('', Student::prepareStudentSuccessesList((int)$comment['successes'])) : '' ?>
                         </p>
                     <?php } ?>
                     <div class="row">

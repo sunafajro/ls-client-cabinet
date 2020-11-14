@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\File;
 use Yii;
 use app\models\ChangeUsernameForm;
 use app\models\ChangePasswordForm;
@@ -122,12 +123,16 @@ class StudentController extends Controller {
             $messages = $student->getMessages();
             $receivers = $student->availableMessageReceiversList();
             if (Yii::$app->request->isPost && $messageForm->load(Yii::$app->request->post())) {
-                $messageForm->calc_messwhomtype = 100;
-                $messageForm->send = 1;
-                $messageForm->user = Yii::$app->user->id;
-                $messageForm->data = date('Y-m-d H:i:s');
-                $messageForm->visible = 1;
+                $files = [];
+                if (is_array($messageForm->files) && !empty($messageForm->files)) {
+                    $files = $messageForm->files;
+                    $messageForm->files = '';
+                }
                 if ($messageForm->save()) {
+                    foreach ($files ?? [] as $fileId) {
+                        $file = File::find()->andWhere(['id' => $fileId])->one();
+                        $file->setEntity(File::TYPE_ATTACHMENTS, $messageForm->id);
+                    }
                     $messageReport = (new \yii\db\Query())
                     ->createCommand()
                     ->insert(

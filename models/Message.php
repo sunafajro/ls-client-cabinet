@@ -35,10 +35,15 @@ class Message extends \yii\db\ActiveRecord {
     public function rules()
     {
         return [
-            [['name', 'description', 'user', 'calc_messwhomtype', 'refinement_id'], 'required'],
+            [['calc_messwhomtype'], 'default', 'value' => 100],
+            [['send'], 'default', 'value' => 1],
+            [['user'], 'default', 'value' => Yii::$app->user->id],
+            [['data'], 'default', 'value' => date('Y-m-d H:i:s')],
+            [['visible'], 'default', 'value' => 1],
             [['visible', 'longmess', 'user', 'send', 'calc_messwhomtype', 'refinement_id'], 'integer'],
             [['name', 'description', 'files', 'refinement'], 'string'],
-            [['data'], 'safe']
+            [['data'], 'safe'],
+            [['name', 'description', 'user', 'calc_messwhomtype', 'refinement_id'], 'required'],
         ];
     }
 
