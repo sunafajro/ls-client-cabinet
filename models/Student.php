@@ -243,7 +243,7 @@ class Student extends ActiveRecord
             'employee' => 'u.name'
         ])
 		->from(['ms' => 'calc_moneystud'])
-		->innerJoin(['u' => 'user'], 'u.id = ms.user')
+		->innerJoin(['u' => 'users'], 'u.id = ms.user')
 		->innerJoin(['o' => 'calc_office'], 'o.id = ms.calc_office')
 		->where([
             'ms.calc_studname' => $this->id,
@@ -476,8 +476,8 @@ class Student extends ActiveRecord
             'type'     => 'm.calc_messwhomtype',
         ])
         ->from(['m' => 'calc_message'])
-        ->leftjoin(['u1' => 'user'], 'u1.id = m.user')
-		->leftjoin(['u2' => 'user'], 'u2.id = m.refinement_id')
+        ->leftjoin(['u1' => 'users'], 'u1.id = m.user')
+		->leftjoin(['u2' => 'users'], 'u2.id = m.refinement_id')
         ->where([
             'm.send' => 1,
             'm.visible' => 1,
@@ -567,7 +567,7 @@ class Student extends ActiveRecord
                 'tid' => 't.id',
             ])
             ->from(['t' => 'calc_teacher'])
-            ->innerJoin(['u' => 'user'], 'u.calc_teacher = t.id')
+            ->innerJoin(['u' => 'users'], 'u.calc_teacher = t.id')
             ->where([
                 't.id' => $teachersIds
             ])
@@ -614,7 +614,7 @@ class Student extends ActiveRecord
 		//выбираем руководителей
 		$chiefs = (new Query())
 		->select(['uid' => 'u.id', 'title' => 'u.name'])
-		->from(['u' => 'user'])
+		->from(['u' => 'users'])
 		->where([
             'u.visible' => 1,
             'u.status' => 3,
@@ -632,8 +632,8 @@ class Student extends ActiveRecord
 		->leftjoin('calc_service csv', 'csv.id=cgt.calc_service')
 		->leftjoin('calc_lang cl', 'cl.id=csv.calc_lang')
 		->leftjoin('calc_teacher ctch', 'ctch.id=cgt.calc_teacher')
-		->leftjoin('user u', 'u.calc_teacher=ctch.id')
-		->leftjoin('status st', 'u.status=st.id')
+		->leftjoin('users u', 'u.calc_teacher=ctch.id')
+		->leftjoin('roles st', 'u.status=st.id')
 		->where([
             'csn.id' => $this->id,
             'cgt.visible' => 1,
@@ -650,8 +650,8 @@ class Student extends ActiveRecord
 		->leftjoin('calc_groupteacher cgt', 'cgt.id=csg.calc_groupteacher')
 		->leftjoin('calc_service csv', 'csv.id=cgt.calc_service')
 		->leftjoin('calc_office cof', 'cof.id = cgt.calc_office')
-		->leftjoin('user u', 'u.calc_office=cof.id')
-		->leftjoin('status st', 'u.status=st.id')
+		->leftjoin('users u', 'u.calc_office=cof.id')
+		->leftjoin('roles st', 'u.status=st.id')
 		->where([
             'csn.id' => $this->id,
             'cgt.visible' => 1,
