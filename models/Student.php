@@ -148,18 +148,19 @@ class Student extends ActiveRecord
 
         $student = (new Query())
         ->select([
-            'id' => 's.id',
-            'active' => 's.active',
-            'name' => 's.name',
+            'id'       => 's.id',
+            'active'   => 's.active',
+            'name'     => 's.name',
             'username' => 'c.username',
             'password' => 'c.password',
-            'date' => 'c.date',
+            'date'     => 'c.date',
         ])
         ->from(['s' => static::tableName()])
         ->innerJoin(['c' => 'tbl_client_access'], 'c.calc_studname = s.id')
         ->where([
+            's.active'  => 1,
             's.visible' => 1,
-            'c.site' => 1,
+            'c.site'    => 1,
         ])
         ->andFilterWhere(['c.id' => $id])
         ->andFilterWhere(['c.username' => $username])
