@@ -9,4 +9,8 @@ require __DIR__ . '/../vendor/yiisoft/yii2/Yii.php';
 
 $config = require __DIR__ . '/../config/web.php';
 
-(new yii\web\Application($config))->run();
+if (YII_ENV === 'maintenance') {
+    echo "В данный момент сайт находится в режиме обслуживания. Попробуйте зайти еще раз позже.";
+} else {
+    (new yii\web\Application($config))->run();
+}
