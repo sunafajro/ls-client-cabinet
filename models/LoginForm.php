@@ -2,14 +2,13 @@
 
 namespace app\models;
 
-use app\models\Client;
 use Yii;
 use yii\base\Model;
 
 /**
  * LoginForm is the model behind the login form.
  *
- * @property User|null $user This property is read-only.
+ * @property Auth|null $user This property is read-only.
  *
  */
 class LoginForm extends Model
@@ -58,13 +57,14 @@ class LoginForm extends Model
             if (!$user || !$user->validatePassword($this->password)) {
                 $this->addError($attribute, Yii::t('app', 'Incorrect username or password'));
             }
-            if (!$this->hasErrors()) {
+            // @deprecated
+            // if (!$this->hasErrors()) {
                 // ограничение на вход при неактивности более 2 месяцев
-                $loginLimitDate = date('Y-m-d', strtotime('-2 month'));
-                if ($user->lastLoginDate < $loginLimitDate || (int)$user->isActive === 0) {
-                    $this->addError('date', Yii::t('app', 'Access for your account was restricted. Please contact your office manager.'));
-                }
-            }
+                // $loginLimitDate = date('Y-m-d', strtotime('-2 month'));
+                // if ($user->lastLoginDate < $loginLimitDate || (int)$user->isActive === 0) {
+                //     $this->addError('date', Yii::t('app', 'Access for your account was restricted. Please contact your office manager.'));
+                // }
+            // }
         }
     }
 
@@ -81,21 +81,22 @@ class LoginForm extends Model
         if (empty($user)) {
             return false;
         }
-        $client = Client::find()->where(['calc_studname' => $user->id])->one();
-        if (empty($client)) {
-            return false;
-        }
-        $client->date = date('Y-m-d');
-        if (!$client->save(true, ['date'])) {
-            return false;
-        }
+        // @deprecated
+        // $client = Client::find()->where(['calc_studname' => $user->id])->one();
+        // if (empty($client)) {
+        //     return false;
+        // }
+        // $client->date = date('Y-m-d');
+        // if (!$client->save(true, ['date'])) {
+        //     return false;
+        // }
         return Yii::$app->user->login($this->getUser(), $this->rememberMe ? 3600*24*30 : 0);
     }
 
     /**
      * Finds user by [[username]]
      *
-     * @return User|null
+     * @return Auth|null
      */
     public function getUser()
     {
