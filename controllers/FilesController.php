@@ -3,7 +3,6 @@
 
 namespace app\controllers;
 
-
 use app\models\File;
 use app\models\Message;
 use app\models\UploadForm;
@@ -67,10 +66,11 @@ class FilesController extends Controller
         ];
 
         if ($model->file && $model->validate()) {
-            if ($model->saveFile(Yii::getAlias('@files/temp'))) {
+            if ($model->saveFile(File::getTempDirPath())) {
                 $file = new File([
-                    'file_name' => $model->file_name,
+                    'file_name'     => $model->file_name,
                     'original_name' => $model->original_name,
+                    'size'          => $model->file->size,
                 ]);
                 if ($file->save()) {
                     $result['success']  = true;
