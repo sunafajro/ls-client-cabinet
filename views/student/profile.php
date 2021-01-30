@@ -10,7 +10,6 @@
  * @var array $teachers
  */
 
-use Yii;
 use yii\helpers\Html;
 
 $this->title = Yii::$app->params['siteTitle'];

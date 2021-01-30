@@ -86,18 +86,18 @@ class FilesController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param string $id
      *
      * @return mixed
      * @throws NotFoundHttpException
      * @throws ForbiddenHttpException
      */
-    public function actionDownload($id)
+    public function actionDownload(string $id)
     {
         $uid = (int)Yii::$app->user->identity->id;
-        $file = $this->findModel($id);
+        $file = $this->findModel(intval($id));
         $result = false;
-        if ($file->entity_type === File::TYPE_ATTACHMENTS) {
+        if ($file->entity_type === File::TYPE_MESSAGE_FILES) {
             /** @var Message|null $message */
             $message = Message::find()->andWhere(['id' => $file->entity_id, 'visible' => 1])->one();
             if (!empty($message)) {
@@ -109,6 +109,17 @@ class FilesController extends Controller
                     // система учета -> лк
                     $result = true;
                 }
+            }
+        } else if ($file->entity_type === File::TYPE_GROUP_FILES) {
+            $checkGroup = (new \yii\db\Query())
+                ->select('*')
+                ->from('calc_studgroup')
+                ->andWhere([
+                    'calc_groupteacher' => $file->entity_id,
+                    'calc_studname' => $uid,
+                ])->exists();
+            if ($checkGroup) {
+                $result = true;
             }
         } else if ($file->entity_type === File::TYPE_TEMP && (int)$file->user_id === $uid && file_exists($file->getPath())) {
             $result = true;
@@ -122,28 +133,25 @@ class FilesController extends Controller
     }
 
     /**
-     * @param int $id
+     * @param string $id
      *
      * @return mixed
      * @throws ForbiddenHttpException
      * @throws NotFoundHttpException
      */
-    public function actionDelete($id)
+    public function actionDelete(string $id)
     {
-        $file = $this->findModel($id);
+        $file = $this->findModel(intval($id));
         if ($file->entity_type === File::TYPE_TEMP && (int)$file->user_id === (int)Yii::$app->user->identity->id) {
-            Yii::$app->response->format = Response::FORMAT_JSON;
+            $result = ['success' => true];
             try {
-                if ($file->delete()) {
-                    return ['success' => true];
-                } else {
-                    return ['success' => false];
+                if (!$file->delete()) {
+                    throw new Exception('Не удалось удалить файл!');
                 }
-            } catch (\Exception $e) {
-                return ['success' => false];
             } catch (\Throwable $e) {
-                return ['success' => false];
+                $result['success'] = false;
             }
+            return $this->asJson($result);
         } else {
             throw new ForbiddenHttpException();
         }

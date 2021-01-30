@@ -40,7 +40,11 @@ AppAsset::register($this);
                 ['label' => Yii::t('app', 'Home'), 'url' => ['/site/index']],
                 ['label' => Yii::t('app', 'Profile'), 'url' => ['/student/profile']],
                 ['label' => Yii::t('app', 'Payments'), 'url' => ['/student/payments']],
-                ['label' => Yii::t('app', 'Lessons'), 'url' => ['/student/lessons']],
+                [
+                    'label' => Yii::t('app', 'Lessons'),
+                    'url' => ['/student/courses'],
+                    'active' => ($this->params['navActiveLink'] ?? '') === 'courses',
+                ],
                 ['label' => Yii::t('app', 'Attestations'), 'url' => ['/student/attestations']],
                 ['label' => Yii::t('app', 'Messages'), 'url' => ['/student/messages']],
                 ['label' => Yii::t('app', 'Settings'), 'url' => ['/student/settings']],

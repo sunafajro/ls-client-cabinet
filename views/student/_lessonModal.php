@@ -44,7 +44,7 @@ use yii\web\View;
 		    <div class="modal-body">
                 <p><b><?= Yii::t('app', 'Description') ?>:</b> <?= $attend['description'] ?></p>
                 <p><b><?= Yii::t('app', 'Homework') ?>:</b> <?= $attend['homework'] ?></p>
-                <p><b><?= Yii::t('app', 'Comments/Recomendations') ?>:</b> <?= $attend['comm'] ?></p>
+                <p><b><?= Yii::t('app', 'Comments/Recommendations') ?>:</b> <?= $attend['comm'] ?></p>
                 <p><b>Успешиков</b>: <?= $attend['successes'] ? join('', Student::prepareStudentSuccessesList((int)$attend['successes'])) : '-' ?></p>
             </div>
 		</div>

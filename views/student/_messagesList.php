@@ -20,7 +20,7 @@ use yii\web\View;
             <?php
                 /** @var File[] $files */
                 $files = File::find()->andWhere([
-                    'entity_type' => File::TYPE_ATTACHMENTS, 'entity_id' => $model['id']
+                    'entity_type' => File::TYPE_MESSAGE_FILES, 'entity_id' => $model['id']
                 ])->all();
                 if (!empty($files)) {
                     echo Html::beginTag('div');

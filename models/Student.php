@@ -6,6 +6,7 @@ use Yii;
 use yii\data\Pagination;
 use yii\data\ActiveDataProvider;
 use yii\db\ActiveRecord;
+use yii\db\Expression;
 use yii\db\Query;
 use yii\helpers\Html;
 
@@ -58,14 +59,22 @@ class Student extends ActiveRecord
     const EXAM_CONTENT_ACCORDING_TO_BOOK  = 'according_to_book';
     const EXAM_CONTENT_COURSE_HOURS_COUNT = 'course_hours_count';
 
+    // статусы посещения занятия
+    const STUDENT_STATUS_PRESENT         = 1;
+    const STUDENT_STATUS_ABSENT_WARNED   = 2;
+    const STUDENT_STATUS_ABSENT_UNWARNED = 3;
+
     /**
      * @inheritdoc
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'calc_studname';
     }
 
+    /**
+     * @return string[]
+     */
     public static function getExams() : array
     {
         return [
@@ -81,6 +90,9 @@ class Student extends ActiveRecord
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public static function getExamContentTypes() : array
     {
         return [
@@ -100,9 +112,23 @@ class Student extends ActiveRecord
     }
 
     /**
+     * @return string[]
+     */
+    public static function getAttendanceStatuses(): array
+    {
+        return [
+            self::STUDENT_STATUS_PRESENT         => 'присутствовал',
+            // (предупредил)
+            self::STUDENT_STATUS_ABSENT_WARNED   => 'не было (принес справку)',
+            // (не предупредил)
+            self::STUDENT_STATUS_ABSENT_UNWARNED => 'не было',
+        ];
+    }
+
+    /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['name', 'visible', 'history', 'calc_sex','active'], 'required'],
@@ -115,7 +141,7 @@ class Student extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function attributeLabels()
+    public function attributeLabels(): array
     {
         return [
             'id' => 'ID',
@@ -256,43 +282,58 @@ class Student extends ActiveRecord
         return $payments;
     }
 
-    public function getLessons()
+    /**
+     * @param int|null $id
+     * @return array
+     */
+    public function getCourses(int $id = null): array
     {
-        $lessons = (new Query())
-		->select([
-            'lessondate' => 'jg.data',
-            'comm' => 'sjg.comments',
-            'coursename' => 's.name',
-            'level' => 'el.name',
-            'teacher' => 't.name',
-            'office' => 'o.name',
-            'studstatus' => 'sj.name',
-            'lessontime' => 'tn.name',
-            'studstatusid' => 'sj.id',
-            'courseid' => 's.id',
-            'lessonid' => 'jg.id',
-            'description' => 'jg.description', 
-            'homework' => 'jg.homework',
-            'successes' => 'sjg.successes',
-        ]) 
-		->from(['sjg' => 'calc_studjournalgroup']) 
-		->leftjoin(['gt' => 'calc_groupteacher'], 'gt.id = sjg.calc_groupteacher')
-		->leftjoin(['t' => 'calc_teacher'], 't.id=gt.calc_teacher')
-		->leftjoin(['el' => 'calc_edulevel'], 'el.id = gt.calc_edulevel')
-		->leftjoin(['s' => 'calc_service'], 's.id = gt.calc_service')
-		->leftjoin(['o' => 'calc_office'], 'o.id = gt.calc_office ')
-		->leftjoin(['sj' => 'calc_statusjournal'], 'sj.id = sjg.calc_statusjournal')
-		->leftjoin(['jg' => 'calc_journalgroup'], 'jg.id = sjg.calc_journalgroup')
-		->leftjoin(['tn' => 'calc_timenorm'], 'tn.id = s.calc_timenorm')
-		->where([
-            'sjg.calc_studname' => $this->id,
-            'jg.visible' => 1
-        ])
-        ->andWhere(['!=', 'sjg.user', 0])
-		->orderBy(['jg.data' => SORT_DESC])
-        ->all();
-        
-        return $lessons;
+        return (new Query())
+            ->select([
+                'id' => 's.id',
+                'title' => 's.name',
+                'timeNorm' => 'tn.value',
+                'groups' => new Expression("GROUP_CONCAT(g.id)"),
+                'offices' => new Expression("GROUP_CONCAT(DISTINCT o.name SEPARATOR ', ')"),
+                'startDate' => new Expression("MIN(g.data)"),
+                'endDates' => new Expression("GROUP_CONCAT(g.data_visible)"),
+                'levels' => new Expression("GROUP_CONCAT(DISTINCT l.name SEPARATOR ', ')"),
+                'lessonsCount' => new Expression("COUNT(j.id)"),
+            ])
+            ->from(['s' => 'calc_service'])
+            ->innerJoin(['g' => 'calc_groupteacher'], "g.calc_service = s.id")
+            ->innerJoin(['sg' => 'calc_studgroup'], "sg.calc_groupteacher = g.id")
+            ->innerJoin(['tn' => 'calc_timenorm'], 'tn.id = s.calc_timenorm')
+            ->innerJoin(['j' => 'calc_journalgroup'], 'j.calc_groupteacher = g.id')
+            ->innerJoin(['o' => 'calc_office'], 'o.id = g.calc_office')
+            ->innerJoin(['l' => 'calc_edulevel'], 'l.id = g.calc_edulevel')
+            ->innerJoin(
+                ['sj' => 'calc_studjournalgroup'],
+                'sj.calc_journalgroup = j.id AND j.visible = :visible AND sj.calc_statusjournal != :status',
+                [':visible' => 1, ':status' => 2]
+            )
+            ->where([
+                'sg.calc_studname' => $this->id,
+                'sj.calc_studname' => $this->id,
+            ])
+            ->andFilterWhere(['s.id' => $id])
+            ->groupBy(['s.id'])
+            ->orderBy(['g.data' => SORT_ASC, 's.id' => SORT_DESC, 'g.id' => SORT_DESC])
+            ->cache(10 * 60)
+            ->all();
+    }
+
+    /**
+     * @param int|null $id
+     * @return array
+     */
+    public function getGroupsByCourseId(int $id): array
+    {
+        return (new Query())
+            ->select('*')
+            ->from('calc_groupteacher')
+            ->where(['calc_service' => $id])
+            ->all();
     }
 
     public function getAttestation($id)
@@ -716,12 +757,16 @@ class Student extends ActiveRecord
         return $count['successes'] ?? 0;
     }
 
-    public static function prepareStudentSuccessesList(int $count)
+    /**
+     * @param int $count
+     * @return array
+     */
+    public static function prepareStudentSuccessesList(int $count): array
     {
         $successes = [];
         if ($count > 0) {
             for ($num = 1; $num <= $count; $num++) {
-                $successes[] = Html::tag('i', '', ['class' => 'fa fa-ticket', 'aria-hidden' => 'true', 'title' => 'Успешик']);
+                $successes[] = Html::tag('i', '', ['class' => 'fas fa-ticket-alt', 'aria-hidden' => 'true', 'title' => 'Успешик', 'style' => 'margin-right:2px']);
             }
         }
 

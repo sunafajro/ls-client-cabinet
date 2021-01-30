@@ -3,34 +3,43 @@
 namespace app\controllers;
 
 use app\models\File;
+use app\models\search\GroupFileSearch;
+use app\models\search\LessonSearch;
 use Yii;
 use app\models\ChangeUsernameForm;
 use app\models\ChangePasswordForm;
 use app\models\Message;
 use app\models\Student;
+use yii\data\ArrayDataProvider;
+use yii\db\Query;
 use yii\filters\AccessControl;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use kartik\mpdf\Pdf;
 
+/**
+ * Class StudentController
+ * @package app\controllers
+ */
 class StudentController extends Controller {
     /**
      * {@inheritdoc}
      */
-    public function behaviors()
+    public function behaviors(): array
     {
+        $rules = ['profile', 'payments', 'courses', 'lessons', 'attestations', 'download-attestation', 'messages', 'settings'];
         return [
             'access' => [
-                'class' => AccessControl::className(),
-                'only' => ['profile', 'payments', 'lessons', 'attestations', 'download-attestation', 'messages', 'settings'],
+                'class' => AccessControl::class,
+                'only' => $rules,
                 'rules' => [
                     [
-                        'actions' => ['profile', 'payments', 'lessons', 'attestations', 'download-attestation', 'messages', 'settings'],
+                        'actions' => $rules,
                         'allow' => false,
                         'roles' => ['?'],
                     ],
                     [
-                        'actions' => ['profile', 'payments', 'lessons', 'attestations', 'download-attestation', 'messages', 'settings'],
+                        'actions' => $rules,
                         'allow' => true,
                         'roles' => ['@'],
                     ],
@@ -38,7 +47,11 @@ class StudentController extends Controller {
             ],
         ];
     }
-    
+
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     public function actionProfile()
     {
         $student = Student::findOne(Yii::$app->user->id);
@@ -69,6 +82,10 @@ class StudentController extends Controller {
         }
     }
 
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     public function actionPayments()
     {
         $student = Student::findOne(Yii::$app->user->id);
@@ -82,87 +99,124 @@ class StudentController extends Controller {
         }
     }
 
-    public function actionLessons($page = 1)
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionCourses()
     {
-        $student = Student::findOne(Yii::$app->user->id);
-        if ($student) {
-            $limit = 10;
-            $lessons = $student->getLessons();
-            list($comments, $total) = $student->getLessonsComments($limit, ($page - 1) * $limit);
-            return $this->render('lessons', [
-                'lessons'     => $lessons,
-                'comments'    => $comments,
-                'currentPage' => $page,
-                'totalPages'  => ceil($total->totalCount / $limit),
-            ]);
-        } else {
-            throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
-        }
+        $student = $this->findModel(Yii::$app->user->id);
+        $dataProvider = new ArrayDataProvider([
+            'allModels' => $student->getCourses()
+        ]);
+        return $this->render('courses', [
+            'dataProvider' => $dataProvider,
+        ]);
     }
 
+    /**
+     * @param string $id
+     * @param string $type
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionCourse(string $id, string $type = 'lessons')
+    {
+        $student = $this->findModel(Yii::$app->user->id);
+
+        $searchModel = null;
+        $dataProvider = null;
+        switch($type) {
+            case 'announcements':
+                break;
+            case 'files':
+                $groupIds = $student->getGroupsByCourseId(intval($id));
+                $groupIds = ArrayHelper::getColumn($groupIds, 'id');
+                $searchModel = new GroupFileSearch(['entityId' => $groupIds]);
+                $dataProvider = $searchModel->search(\Yii::$app->request->get());
+                break;
+            default:
+                $searchModel = new LessonSearch(['serviceId' => intval($id), 'studentId' => $student->id]);
+                $dataProvider = $searchModel->search(\Yii::$app->request->get());
+        }
+
+        return $this->render('course', [
+            'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+            'model' => $student->getCourses(intval($id))[0] ?? [],
+            'tab' => $type
+        ]);
+    }
+
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     public function actionAttestations()
     {
-        $student = Student::findOne(Yii::$app->user->id);
-        if ($student) {
-            $attestations = $student->getAttestations();
-            return $this->render('attestations', [
-                'contentTypes' => Student::getExamContentTypes(),
-                'grades'       => $attestations,
-                'exams'        => Student::getExams(),
-            ]);
-        } else {
-            throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
-        }
+        $student = $this->findModel(Yii::$app->user->id);
+        $attestations = $student->getAttestations();
+        return $this->render('attestations', [
+            'contentTypes' => Student::getExamContentTypes(),
+            'grades'       => $attestations,
+            'exams'        => Student::getExams(),
+        ]);
     }
 
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     * @throws \yii\db\Exception
+     */
     public function actionMessages()
     {
-        $student = Student::findOne(Yii::$app->user->id);
-        if ($student) {
-            $messageForm = new Message();
-            $messages = $student->getMessages();
-            $receivers = $student->availableMessageReceiversList();
-            if (Yii::$app->request->isPost && $messageForm->load(Yii::$app->request->post())) {
-                $files = [];
-                if (is_array($messageForm->files) && !empty($messageForm->files)) {
-                    $files = $messageForm->files;
-                    $messageForm->files = '';
-                }
-                if ($messageForm->save()) {
-                    foreach ($files ?? [] as $fileId) {
-                        $file = File::find()->andWhere(['id' => $fileId])->one();
-                        $file->setEntity(File::TYPE_ATTACHMENTS, $messageForm->id);
-                    }
-                    $messageReport = (new \yii\db\Query())
-                    ->createCommand()
-                    ->insert(
-                        'calc_messreport',
-                        [
-                            'calc_message' => $messageForm->id,
-                            'user'         => $messageForm->refinement_id,
-                            'ok'           => 0,
-                            'data'         => date('Y-m-d H:i:s'),
-                            'send'         => 1
-                        ]
-                    )->execute();;
-                    $messageForm = new Message();
-                    Yii::$app->session->setFlash('success', Yii::t('app', 'Message successfully sended'));
-                } else {
-                    Yii::$app->session->setFlash('error', Yii::t('app', 'Failed to send message'));
-                }
+        $student = $this->findModel(Yii::$app->user->id);
+        $messageForm = new Message();
+        $messages = $student->getMessages();
+        $receivers = $student->availableMessageReceiversList();
+        if (Yii::$app->request->isPost && $messageForm->load(Yii::$app->request->post())) {
+            $files = [];
+            if (is_array($messageForm->files) && !empty($messageForm->files)) {
+                $files = $messageForm->files;
+                $messageForm->files = '';
             }
-            return $this->render('messages', [
-                'messages'    => $messages,
-                'messageForm' => $messageForm,
-                'receivers'   => $receivers,
-            ]);
-        } else {
-            throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+            if ($messageForm->save()) {
+                foreach ($files ?? [] as $fileId) {
+                    $file = File::find()->andWhere(['id' => $fileId])->one();
+                    $file->setEntity(File::TYPE_MESSAGE_FILES, $messageForm->id);
+                }
+                $messageReport = (new \yii\db\Query())
+                ->createCommand()
+                ->insert(
+                    'calc_messreport',
+                    [
+                        'calc_message' => $messageForm->id,
+                        'user'         => $messageForm->refinement_id,
+                        'ok'           => 0,
+                        'data'         => date('Y-m-d H:i:s'),
+                        'send'         => 1
+                    ]
+                )->execute();;
+                $messageForm = new Message();
+                Yii::$app->session->setFlash('success', Yii::t('app', 'Message successfully sended'));
+            } else {
+                Yii::$app->session->setFlash('error', Yii::t('app', 'Failed to send message'));
+            }
         }
+        return $this->render('messages', [
+            'messages'    => $messages,
+            'messageForm' => $messageForm,
+            'receivers'   => $receivers,
+        ]);
     }
 
+    /**
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     public function actionSettings()
     {
+        $this->findModel(Yii::$app->user->id);
         $changeUsername = new ChangeUsernameForm();
         $changePassword = new ChangePasswordForm();
         if (Yii::$app->request->isPost) {
@@ -189,22 +243,39 @@ class StudentController extends Controller {
         ]);
     }
 
+    /**
+     * @param $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
     public function actionDownloadAttestation($id)
     {
-        $student = Student::findOne(Yii::$app->user->id);
-        if ($student) {
-            $attestation = $student->getAttestation($id);
-            if ($attestation) {                
-                $filePath = Yii::getAlias("@attestates/{$student->id}/attestate-{$id}.pdf");
-                if (!file_exists($filePath)) {
-                    throw new NotFoundHttpException('The requested page does not exist.');
-                }
-                return Yii::$app->response->sendFile($filePath);
-            } else {
-                throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+        $student = $this->findModel(Yii::$app->user->id);
+        $attestation = $student->getAttestation($id);
+        if ($attestation) {
+            $filePath = Yii::getAlias("@attestates/{$student->id}/attestate-{$id}.pdf");
+            if (!file_exists($filePath)) {
+                throw new NotFoundHttpException('The requested page does not exist.');
             }
+            return Yii::$app->response->sendFile($filePath);
         } else {
             throw new NotFoundHttpException(Yii::t('app', 'The requested page does not exist.'));
+        }
+    }
+
+    /**
+     * Finds the Student model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Student the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel(int $id): Student
+    {
+        if (($model = Student::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }

@@ -10,6 +10,8 @@
 use app\assets\MessageFormAsset;
 use app\models\File;
 use app\models\Message;
+use app\models\MessageFile;
+use app\models\TempFile;
 use yii\helpers\Html;
 use app\widgets\Alert;
 use yii\helpers\Url;
@@ -52,11 +54,12 @@ MessageFormAsset::register($this);
                                 . ' '
                                 . Yii::t('app', 'Attach file'), ['class' => 'btn btn-default btn-xs js--upload-file-btn', 'style' => 'margin-right: 5px']) ?>
                             <?php
-                            $files = File::find()->andWhere(['user_id' => Yii::$app->user->identity->id])->andWhere([
-                                'or',
-                                ['entity_type' => File::TYPE_TEMP, 'entity_id' => null],
-                                ['entity_type' => File::TYPE_ATTACHMENTS, 'entity_id' => $model->id ?? null]
-                            ])->all();
+
+                            $files = TempFile::find()->byUserId(Yii::$app->user->identity->id)->all();
+                            if ($messageForm->id) {
+                                $messageFiles = MessageFile::find()->byEntityId($messageForm->id)->byUserId(Yii::$app->user->identity->id)->all();
+                                $files = array_merge($files, $messageFiles);
+                            }
                             foreach ($files as $file) {
                                 echo $this->render('_file_template', [
                                     'file' => $file,
